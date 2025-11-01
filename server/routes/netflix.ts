@@ -77,6 +77,16 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       status: jsonData?.status,
       hasTitle: !!jsonData?.title,
       hasYear: !!jsonData?.year,
+      hasSeason: !!jsonData?.season,
+      seasonCount: Array.isArray(jsonData?.season)
+        ? jsonData.season.length
+        : 0,
+      firstSeasonKeys: Array.isArray(jsonData?.season)
+        ? Object.keys(jsonData.season[0] || {})
+        : [],
+      firstSeasonData: Array.isArray(jsonData?.season)
+        ? JSON.stringify(jsonData.season[0]).substring(0, 200)
+        : null,
     });
 
     // Check if the API returned success status
