@@ -127,7 +127,7 @@ export default function AmazonPrime() {
 
       for (const season of data.seasons) {
         const response = await fetch(
-          `/api/episodes?seriesId=${encodeURIComponent(id)}&seasonId=${encodeURIComponent(season.id)}`,
+          `/api/episodes?seriesId=${encodeURIComponent(id)}&seasonId=${encodeURIComponent(season.id)}&service=amazon-prime`,
         );
 
         const result = await response.json();
