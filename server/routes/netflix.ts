@@ -100,6 +100,16 @@ export const handleNetflix: RequestHandler = async (req, res) => {
     // Get cast
     const castList = jsonData.short_cast || jsonData.cast || "Unknown";
 
+    // Process seasons with IDs and episode counts
+    let seasons: Season[] | undefined;
+    if (isSeriesData && Array.isArray(jsonData.season)) {
+      seasons = jsonData.season.map((season: any, index: number) => ({
+        id: season.id || season.sid || `${index + 1}`,
+        number: season.num || `${index + 1}`,
+        episodeCount: season.ep_count ? parseInt(season.ep_count) : 0,
+      }));
+    }
+
     const result: NetflixResponse = {
       title: jsonData.title || "Unknown",
       year: jsonData.year || "Unknown",
@@ -114,7 +124,7 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       quality: jsonData.hdsd || "Unknown",
       creator: jsonData.creator || undefined,
       director: jsonData.director || undefined,
-      seasons: isSeriesData ? jsonData.season?.length : undefined,
+      seasons: seasons,
       contentWarning: jsonData.m_reason || undefined,
     };
 
