@@ -1,18 +1,50 @@
 import { RequestHandler } from "express";
 
 interface NetflixAPIResponse {
+  status: string;
   title: string;
-  year: number | string;
-  lang: Array<{ l: string } | string>;
-  episodes?: any[];
-  season?: string;
+  year: string;
+  d_lang: string;
+  type: string;
+  runtime: string;
+  match: string;
+  hdsd: string;
+  genre: string;
+  cast: string;
+  short_cast: string;
+  creator: string;
+  director: string;
+  writer: string;
+  desc: string;
+  m_desc: string;
+  m_reason: string;
+  ua: string;
+  thismovieis: string;
+  season?: Array<{
+    s: string;
+    id: string;
+    ep: string;
+    sele: string;
+  }>;
+  oin?: string;
 }
 
 interface NetflixResponse {
   title: string;
   year: string;
-  languages: string;
+  language: string;
   category: "Movie" | "Series";
+  genre: string;
+  cast: string;
+  description: string;
+  rating: string;
+  match: string;
+  runtime: string;
+  quality: string;
+  creator?: string;
+  director?: string;
+  seasons?: number;
+  contentWarning?: string;
 }
 
 export const handleNetflix: RequestHandler = async (req, res) => {
@@ -31,27 +63,38 @@ export const handleNetflix: RequestHandler = async (req, res) => {
 
     const jsonData: NetflixAPIResponse = await response.json();
 
-    // Extract data from response
-    const episodes = jsonData.episodes || [];
-    const season = jsonData.season;
+    if (jsonData.status !== "y") {
+      return res.status(404).json({ error: "Content not found" });
+    }
 
-    // Determine if it's a movie or series
-    const category =
-      !episodes || (Array.isArray(episodes) && episodes[0] === null) || !season
-        ? "Movie"
-        : "Series";
+    // Determine if it's a movie or series based on season array
+    const isSeriesData = Array.isArray(jsonData.season) && jsonData.season.length > 0;
+    const category = isSeriesData ? "Series" : "Movie";
 
-    // Extract and format languages
-    const languagesArray = jsonData.lang || [];
-    const languages = Array.isArray(languagesArray)
-      ? languagesArray.map((lang) => (typeof lang === "string" ? lang : lang.l || lang)).join(", ")
-      : "";
+    // Parse genre - it comes as HTML encoded string
+    const genre = jsonData.genre
+      ? jsonData.genre.replace(/&amp;/g, "&").replace(/&quot;/g, '"')
+      : "Unknown";
+
+    // Get first cast member or use short_cast
+    const castList = jsonData.short_cast || jsonData.cast || "Unknown";
 
     const result: NetflixResponse = {
       title: jsonData.title || "Unknown",
-      year: (jsonData.year || "Unknown").toString(),
-      languages: languages || "Unknown",
+      year: jsonData.year || "Unknown",
+      language: jsonData.d_lang || "Unknown",
       category,
+      genre,
+      cast: castList,
+      description: jsonData.desc || "No description available",
+      rating: jsonData.ua || "Not rated",
+      match: jsonData.match || "N/A",
+      runtime: jsonData.runtime || "Unknown",
+      quality: jsonData.hdsd || "Unknown",
+      creator: jsonData.creator || undefined,
+      director: jsonData.director || undefined,
+      seasons: isSeriesData ? jsonData.season?.length : undefined,
+      contentWarning: jsonData.m_reason || undefined,
     };
 
     res.json(result);
