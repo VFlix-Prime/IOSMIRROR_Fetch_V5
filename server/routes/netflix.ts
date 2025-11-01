@@ -1,6 +1,12 @@
 import { RequestHandler } from "express";
 import { getTHash } from "./cookie";
 
+interface Season {
+  id: string;
+  number: string;
+  episodeCount: number;
+}
+
 interface NetflixResponse {
   title: string;
   year: string;
@@ -15,7 +21,7 @@ interface NetflixResponse {
   quality: string;
   creator?: string;
   director?: string;
-  seasons?: number;
+  seasons?: Season[];
   contentWarning?: string;
 }
 
