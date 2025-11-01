@@ -2,7 +2,9 @@ import { RequestHandler } from "express";
 
 let cachedSetCookieHeaders: string[] | null = null;
 let cachedCookieHeader: string | null = null;
+let cachedPrimeToken: string | null = null;
 let cacheTimestamp: number = 0;
+let tokenCacheTimestamp: number = 0;
 const CACHE_DURATION = 3600000; // 1 hour in milliseconds
 
 // Combine all Set-Cookie headers into a single Cookie header string
