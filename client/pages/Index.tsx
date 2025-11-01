@@ -303,6 +303,44 @@ export default function Index() {
                 </p>
               </div>
             )}
+
+            {/* Token Status Section */}
+            {hasToken && (
+              <div className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                  <p className="text-amber-300 font-semibold">Prime Token Active</p>
+                </div>
+                <div className="bg-slate-900/50 rounded p-3 mb-3 font-mono text-xs text-slate-300 relative">
+                  <div className="pr-16 whitespace-pre-wrap break-words max-h-40 overflow-y-auto">
+                    {primeToken}
+                  </div>
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <button
+                      onClick={handleCopyToken}
+                      className="p-1 hover:bg-slate-800 rounded transition-colors"
+                      title="Copy to clipboard"
+                    >
+                      {tokenCopied ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-slate-400 hover:text-slate-300" />
+                      )}
+                    </button>
+                    <button
+                      onClick={clearToken}
+                      className="p-1 hover:bg-slate-800 rounded transition-colors"
+                      title="Clear token"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400 hover:text-red-300" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-slate-400 text-xs">
+                  This token will be used for streaming API requests. Click "Fetch Prime Token" again to refresh.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
