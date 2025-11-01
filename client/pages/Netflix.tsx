@@ -2,7 +2,17 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, AlertCircle, Loader2, Check, Tv, Calendar, Users, Tag } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  AlertCircle,
+  Loader2,
+  Check,
+  Tv,
+  Calendar,
+  Users,
+  Tag,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface NetflixData {
@@ -53,7 +63,9 @@ export default function Netflix() {
       setData(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch data. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch data. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -157,15 +169,21 @@ export default function Netflix() {
                     <div className="bg-slate-700/50 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Calendar className="w-4 h-4 text-slate-400" />
-                        <p className="text-slate-400 text-xs font-medium">YEAR</p>
+                        <p className="text-slate-400 text-xs font-medium">
+                          YEAR
+                        </p>
                       </div>
-                      <p className="text-xl font-bold text-white">{data.year}</p>
+                      <p className="text-xl font-bold text-white">
+                        {data.year}
+                      </p>
                     </div>
 
                     <div className="bg-slate-700/50 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Tv className="w-4 h-4 text-slate-400" />
-                        <p className="text-slate-400 text-xs font-medium">CATEGORY</p>
+                        <p className="text-slate-400 text-xs font-medium">
+                          CATEGORY
+                        </p>
                       </div>
                       <p>
                         <span
@@ -181,12 +199,18 @@ export default function Netflix() {
                     </div>
 
                     <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs font-medium mb-2">LANGUAGE</p>
-                      <p className="text-white font-semibold uppercase">{data.language}</p>
+                      <p className="text-slate-400 text-xs font-medium mb-2">
+                        LANGUAGE
+                      </p>
+                      <p className="text-white font-semibold uppercase">
+                        {data.language}
+                      </p>
                     </div>
 
                     <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs font-medium mb-2">QUALITY</p>
+                      <p className="text-slate-400 text-xs font-medium mb-2">
+                        QUALITY
+                      </p>
                       <p className="text-white font-semibold">{data.quality}</p>
                     </div>
                   </div>
@@ -194,13 +218,21 @@ export default function Netflix() {
                   {/* Runtime and Match */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs font-medium mb-2">RUNTIME</p>
-                      <p className="text-xl font-bold text-white">{data.runtime}</p>
+                      <p className="text-slate-400 text-xs font-medium mb-2">
+                        RUNTIME
+                      </p>
+                      <p className="text-xl font-bold text-white">
+                        {data.runtime}
+                      </p>
                     </div>
 
                     <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs font-medium mb-2">MATCH</p>
-                      <p className="text-xl font-bold text-white">{data.match}</p>
+                      <p className="text-slate-400 text-xs font-medium mb-2">
+                        MATCH
+                      </p>
+                      <p className="text-xl font-bold text-white">
+                        {data.match}
+                      </p>
                     </div>
                   </div>
 
@@ -209,7 +241,9 @@ export default function Netflix() {
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Tag className="w-4 h-4 text-slate-400" />
-                        <p className="text-slate-400 text-sm font-medium">GENRES</p>
+                        <p className="text-slate-400 text-sm font-medium">
+                          GENRES
+                        </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {data.genre.split(",").map((genre, idx) => (
@@ -229,14 +263,22 @@ export default function Netflix() {
                     <div className="grid md:grid-cols-2 gap-4">
                       {data.rating && (
                         <div className="bg-slate-700/50 rounded-lg p-4">
-                          <p className="text-slate-400 text-xs font-medium mb-2">RATING</p>
-                          <p className="text-white font-semibold">{data.rating}</p>
+                          <p className="text-slate-400 text-xs font-medium mb-2">
+                            RATING
+                          </p>
+                          <p className="text-white font-semibold">
+                            {data.rating}
+                          </p>
                         </div>
                       )}
                       {data.contentWarning && (
                         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                          <p className="text-yellow-400 text-xs font-medium mb-2">CONTENT WARNING</p>
-                          <p className="text-yellow-200 text-sm">{data.contentWarning}</p>
+                          <p className="text-yellow-400 text-xs font-medium mb-2">
+                            CONTENT WARNING
+                          </p>
+                          <p className="text-yellow-200 text-sm">
+                            {data.contentWarning}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -247,9 +289,13 @@ export default function Netflix() {
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Users className="w-4 h-4 text-slate-400" />
-                        <p className="text-slate-400 text-sm font-medium">CAST</p>
+                        <p className="text-slate-400 text-sm font-medium">
+                          CAST
+                        </p>
                       </div>
-                      <p className="text-slate-300 text-sm leading-relaxed">{data.cast}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed">
+                        {data.cast}
+                      </p>
                     </div>
                   )}
 
@@ -258,14 +304,22 @@ export default function Netflix() {
                     <div className="grid md:grid-cols-2 gap-4">
                       {data.creator && (
                         <div>
-                          <p className="text-slate-400 text-xs font-medium mb-2">CREATOR</p>
-                          <p className="text-white font-semibold">{data.creator}</p>
+                          <p className="text-slate-400 text-xs font-medium mb-2">
+                            CREATOR
+                          </p>
+                          <p className="text-white font-semibold">
+                            {data.creator}
+                          </p>
                         </div>
                       )}
                       {data.director && (
                         <div>
-                          <p className="text-slate-400 text-xs font-medium mb-2">DIRECTOR</p>
-                          <p className="text-white font-semibold">{data.director}</p>
+                          <p className="text-slate-400 text-xs font-medium mb-2">
+                            DIRECTOR
+                          </p>
+                          <p className="text-white font-semibold">
+                            {data.director}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -275,7 +329,8 @@ export default function Netflix() {
                   {data.category === "Series" && data.seasons && (
                     <div className="bg-slate-700/30 rounded-lg p-4">
                       <p className="text-white font-semibold">
-                        📺 {data.seasons} Season{data.seasons !== 1 ? "s" : ""} Available
+                        📺 {data.seasons} Season{data.seasons !== 1 ? "s" : ""}{" "}
+                        Available
                       </p>
                     </div>
                   )}
@@ -300,7 +355,8 @@ export default function Netflix() {
           {!data && !error && !loading && (
             <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 text-center">
               <p className="text-slate-400">
-                Enter a Netflix ID above to search for movies and series information.
+                Enter a Netflix ID above to search for movies and series
+                information.
               </p>
               <p className="text-slate-500 text-sm mt-4">
                 Example ID: 80189685

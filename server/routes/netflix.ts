@@ -33,15 +33,18 @@ export const handleNetflix: RequestHandler = async (req, res) => {
     const fetchOptions: RequestInit = {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "application/json",
         "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://net20.cc/",
-        ...(tHash && { "Cookie": `t_hash=${tHash}` }),
+        Referer: "https://net20.cc/",
+        ...(tHash && { Cookie: `t_hash=${tHash}` }),
       },
     };
 
-    console.log(`Fetching Netflix data for ID: ${id}, with t_hash: ${tHash ? "yes" : "no"}`);
+    console.log(
+      `Fetching Netflix data for ID: ${id}, with t_hash: ${tHash ? "yes" : "no"}`,
+    );
     const url = `https://net20.cc/post.php?id=${encodeURIComponent(id)}`;
     const response = await fetch(url, fetchOptions);
 
@@ -78,7 +81,8 @@ export const handleNetflix: RequestHandler = async (req, res) => {
     }
 
     // Determine if it's a movie or series
-    const isSeriesData = Array.isArray(jsonData.season) && jsonData.season.length > 0;
+    const isSeriesData =
+      Array.isArray(jsonData.season) && jsonData.season.length > 0;
     const category = isSeriesData ? "Series" : "Movie";
 
     // Parse genre

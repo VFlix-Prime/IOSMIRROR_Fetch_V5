@@ -16,14 +16,19 @@ export const getTHash = async (): Promise<string | null> => {
     const response = await fetch("https://net51.cc/tv/p.php", {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
     });
 
     // Get the Set-Cookie header
     const setCookieHeader = response.headers.get("set-cookie");
-    console.log("Set-Cookie header:", setCookieHeader ? setCookieHeader.substring(0, 100) : "not found");
+    console.log(
+      "Set-Cookie header:",
+      setCookieHeader ? setCookieHeader.substring(0, 100) : "not found",
+    );
 
     if (!setCookieHeader) {
       console.error("No Set-Cookie header found");

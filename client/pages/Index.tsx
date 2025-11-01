@@ -1,5 +1,14 @@
 import { Link } from "react-router-dom";
-import { Play, Film, Tv, RefreshCw, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react";
+import {
+  Play,
+  Film,
+  Tv,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCookie } from "@/hooks/useCookie";
 import { useState } from "react";
@@ -62,7 +71,8 @@ export default function Index() {
             Streaming Content Discovery
           </p>
           <p className="text-slate-400 max-w-2xl mx-auto mb-8">
-            Search for movies and series across your favorite streaming platforms
+            Search for movies and series across your favorite streaming
+            platforms
           </p>
 
           {/* Fetch Cookie Button */}
@@ -138,7 +148,8 @@ export default function Index() {
         <div className="border-t border-slate-800 mt-12 pt-8 pb-8">
           <div className="max-w-4xl mx-auto px-6">
             <p className="text-slate-500 text-sm text-center mb-6">
-              IOSMIRROR © 2024. Search movies and series across streaming platforms.
+              IOSMIRROR © 2024. Search movies and series across streaming
+              platforms.
             </p>
 
             {/* Cookie Status Section */}
@@ -163,7 +174,8 @@ export default function Index() {
                   </button>
                 </div>
                 <p className="text-slate-400 text-xs">
-                  This cookie will be used for all API requests. Click "Fetch Cookies" again to refresh.
+                  This cookie will be used for all API requests. Click "Fetch
+                  Cookies" again to refresh.
                 </p>
               </div>
             )}

@@ -62,13 +62,19 @@ export function CookieStatus() {
   }, []);
 
   const statusColor = {
-    success: "bg-green-500/20 hover:bg-green-500/30 border-green-500/50 text-green-300",
+    success:
+      "bg-green-500/20 hover:bg-green-500/30 border-green-500/50 text-green-300",
     error: "bg-red-500/20 hover:bg-red-500/30 border-red-500/50 text-red-300",
     loading: "bg-yellow-500/20 border-yellow-500/50 text-yellow-300",
     idle: "bg-slate-700/50 border-slate-600 text-slate-300",
   };
 
-  const Icon = status === "success" ? CheckCircle2 : status === "error" ? AlertCircle : RefreshCw;
+  const Icon =
+    status === "success"
+      ? CheckCircle2
+      : status === "error"
+        ? AlertCircle
+        : RefreshCw;
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -86,7 +92,11 @@ export function CookieStatus() {
         >
           <Icon className={`w-4 h-4 ${isChecking ? "animate-spin" : ""}`} />
           <span className="text-xs font-semibold">
-            {status === "loading" ? "Checking..." : status === "success" ? "Cookie Ready" : "Fetch Cookie"}
+            {status === "loading"
+              ? "Checking..."
+              : status === "success"
+                ? "Cookie Ready"
+                : "Fetch Cookie"}
           </span>
         </Button>
       </div>

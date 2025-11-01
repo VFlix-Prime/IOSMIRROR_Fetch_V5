@@ -10,7 +10,7 @@ export function useCookie() {
     }
     return null;
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +32,8 @@ export function useCookie() {
         return false;
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to fetch cookie";
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to fetch cookie";
       setError(errorMsg);
       return false;
     } finally {

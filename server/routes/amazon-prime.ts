@@ -29,7 +29,9 @@ export const handleAmazonPrime: RequestHandler = async (req, res) => {
     const response = await fetch(apiEndpoint);
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: "Failed to fetch data from Amazon Prime API" });
+      return res
+        .status(response.status)
+        .json({ error: "Failed to fetch data from Amazon Prime API" });
     }
 
     const jsonData: AmazonPrimeAPIResponse = await response.json();
@@ -47,7 +49,9 @@ export const handleAmazonPrime: RequestHandler = async (req, res) => {
     // Extract and format languages
     const languagesArray = jsonData.lang || [];
     const languages = Array.isArray(languagesArray)
-      ? languagesArray.map((lang) => (typeof lang === "string" ? lang : lang.l || lang)).join(", ")
+      ? languagesArray
+          .map((lang) => (typeof lang === "string" ? lang : lang.l || lang))
+          .join(", ")
       : "";
 
     const result: AmazonPrimeResponse = {
