@@ -7,6 +7,14 @@ import { useState } from "react";
 export default function Index() {
   const { tHash, loading, error, fetchCookie, hasCookie } = useCookie();
   const [copied, setCopied] = useState(false);
+  const handleCopyCookie = () => {
+    if (tHash) {
+      navigator.clipboard.writeText(tHash);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const services = [
     {
       id: "netflix",
