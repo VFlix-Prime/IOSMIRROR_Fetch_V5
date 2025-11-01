@@ -64,7 +64,9 @@ export default function Settings() {
               All STRM files for Netflix, Amazon Prime, and JioHotstar will be
               saved under this folder, using the structure:
               <br />
-              <code className="text-slate-400">[base]/[service]/(Series|Movies)/...</code>
+              <code className="text-slate-400">
+                [base]/[service]/(Series|Movies)/...
+              </code>
             </p>
             <div className="flex gap-3 items-center">
               <Input
@@ -77,9 +79,7 @@ export default function Settings() {
                 {loading ? "Saving..." : "Save"}
               </Button>
             </div>
-            {status && (
-              <div className="text-sm text-slate-300">{status}</div>
-            )}
+            {status && <div className="text-sm text-slate-300">{status}</div>}
           </CardContent>
         </Card>
       </div>

@@ -216,7 +216,10 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const moviesFolder = path.join(getSettings().defaultBaseFolder, `${service}/Movies`);
+    const moviesFolder = path.join(
+      getSettings().defaultBaseFolder,
+      `${service}/Movies`,
+    );
 
     try {
       ensureDirectoryExists(moviesFolder);
