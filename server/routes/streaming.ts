@@ -22,15 +22,18 @@ export interface StreamingDetail {
 }
 
 // Generate folder path based on service and series
+import { getSettings } from "../utils/settings";
+
 const generateFolderPath = (
   service: string,
   seriesName: string,
   seasonNumber: string,
 ): string => {
   const cleanSeriesName = seriesName.trim();
+  const base = getSettings().defaultBaseFolder;
   return path.join(
-    process.cwd(),
-    `OTT/${service}/Series/${cleanSeriesName}/Season ${seasonNumber}`,
+    base,
+    `${service}/Series/${cleanSeriesName}/Season ${seasonNumber}`,
   );
 };
 
@@ -214,7 +217,7 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const moviesFolder = path.join(process.cwd(), `OTT/${service}/Movies`);
+    const moviesFolder = path.join(getSettings().defaultBaseFolder, `${service}/Movies`);
 
     try {
       ensureDirectoryExists(moviesFolder);
