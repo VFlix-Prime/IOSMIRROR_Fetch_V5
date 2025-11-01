@@ -35,5 +35,10 @@ export function createServer() {
   app.get("/api/jio-hotstar", handleJioHotstar);
   app.get("/api/episodes", handleEpisodes);
 
+  // Streaming details routes
+  app.post("/api/save-streaming", handleSaveStreaming);
+  app.post("/api/export-streaming", handleExportStreaming);
+  app.post("/api/delete-streaming-files", handleDeleteStreaming);
+
   return app;
 }
