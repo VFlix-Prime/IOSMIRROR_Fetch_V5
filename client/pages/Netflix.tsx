@@ -130,7 +130,19 @@ export default function Netflix() {
         throw new Error(result.error || "Failed to fetch episodes");
       }
 
-      setEpisodes(result.episodes || []);
+      const fetchedEpisodes = result.episodes || [];
+      setEpisodes(fetchedEpisodes);
+
+      // Generate .strm files for single season
+      if (fetchedEpisodes.length > 0) {
+        await generateStrmFiles([
+          {
+            number: season.number,
+            id: season.id,
+            episodes: fetchedEpisodes,
+          },
+        ]);
+      }
     } catch (err) {
       setError(
         err instanceof Error
