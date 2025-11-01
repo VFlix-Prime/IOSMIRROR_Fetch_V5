@@ -17,6 +17,8 @@ export default function AmazonPrime() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState<PrimeData | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
