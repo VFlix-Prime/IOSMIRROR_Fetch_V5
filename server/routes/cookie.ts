@@ -1,8 +1,14 @@
 import { RequestHandler } from "express";
 
-let cachedTHash: string | null = null;
+let cachedSetCookieHeader: string | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 3600000; // 1 hour in milliseconds
+
+// Extract just the cookie value (name=value) from the full Set-Cookie header
+export const extractCookieValue = (setCookieHeader: string): string | null => {
+  const match = setCookieHeader.match(/^([^;]+)/);
+  return match ? match[1] : null;
+};
 
 export const getTHash = async (): Promise<string | null> => {
   // Return cached value if still valid
