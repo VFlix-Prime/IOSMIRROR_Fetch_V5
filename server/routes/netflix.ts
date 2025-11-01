@@ -56,7 +56,9 @@ export const handleNetflix: RequestHandler = async (req, res) => {
     const response = await fetch(url, fetchOptions);
 
     const text = await response.text();
-    console.log(`Response status: ${response.status}, length: ${text.length}, text: ${text.substring(0, 500)}`);
+    console.log(
+      `Response status: ${response.status}, length: ${text.length}, text: ${text.substring(0, 500)}`,
+    );
 
     if (!text) {
       return res.status(500).json({ error: "Empty response from API" });

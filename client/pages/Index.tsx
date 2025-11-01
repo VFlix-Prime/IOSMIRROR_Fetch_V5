@@ -15,7 +15,8 @@ import { useCookie } from "@/hooks/useCookie";
 import { useState } from "react";
 
 export default function Index() {
-  const { tHash, loading, error, fetchCookie, hasCookie, clearCookie } = useCookie();
+  const { tHash, loading, error, fetchCookie, hasCookie, clearCookie } =
+    useCookie();
   const [copied, setCopied] = useState(false);
   const handleCopyCookie = async () => {
     if (tHash) {

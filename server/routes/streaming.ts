@@ -40,13 +40,7 @@ const generateStrmContent = (episode: any): string => {
 
 export const handleSaveStreaming: RequestHandler = async (req, res) => {
   try {
-    const {
-      service,
-      seriesName,
-      seriesId,
-      season,
-      episodes,
-    } = req.body;
+    const { service, seriesName, seriesId, season, episodes } = req.body;
 
     if (!service || !seriesName || !seriesId || !season || !episodes) {
       return res.status(400).json({ error: "Missing required fields" });

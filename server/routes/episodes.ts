@@ -79,6 +79,8 @@ export const handleEpisodes: RequestHandler = async (req, res) => {
     res.status(200).json({ episodes });
   } catch (error) {
     console.error("Episodes API error:", error);
-    res.status(500).json({ error: "Failed to fetch episodes. Please try again." });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch episodes. Please try again." });
   }
 };

@@ -55,7 +55,10 @@ export default function History() {
       fetch("/api/delete-streaming-files", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, folderPath: history.find((h) => h.id === id)?.folderPath }),
+        body: JSON.stringify({
+          id,
+          folderPath: history.find((h) => h.id === id)?.folderPath,
+        }),
       }).catch(console.error);
     } catch (err) {
       setError("Failed to delete history item");
@@ -78,11 +81,17 @@ export default function History() {
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 hover:text-white"
+                >
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
               </Link>
-              <h1 className="text-3xl font-bold text-white">Streaming History</h1>
+              <h1 className="text-3xl font-bold text-white">
+                Streaming History
+              </h1>
             </div>
           </div>
         </div>
@@ -99,10 +108,12 @@ export default function History() {
             {history.length === 0 ? (
               <div className="bg-slate-800/50 rounded-2xl p-12 border border-slate-700 text-center">
                 <FolderOpen className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-                <h2 className="text-xl font-semibold text-slate-300 mb-2">No History Yet</h2>
+                <h2 className="text-xl font-semibold text-slate-300 mb-2">
+                  No History Yet
+                </h2>
                 <p className="text-slate-400">
-                  Streaming details will appear here when you fetch episodes from Netflix, Amazon Prime, or
-                  JioHotstar.
+                  Streaming details will appear here when you fetch episodes
+                  from Netflix, Amazon Prime, or JioHotstar.
                 </p>
               </div>
             ) : (
@@ -124,9 +135,12 @@ export default function History() {
                               Season {item.season.number}
                             </span>
                           </div>
-                          <h3 className="text-lg font-bold text-white mb-1">{item.seriesName}</h3>
+                          <h3 className="text-lg font-bold text-white mb-1">
+                            {item.seriesName}
+                          </h3>
                           <p className="text-sm text-slate-400">
-                            {item.episodes.length} episode{item.episodes.length !== 1 ? "s" : ""} •{" "}
+                            {item.episodes.length} episode
+                            {item.episodes.length !== 1 ? "s" : ""} •{" "}
                             {new Date(item.savedAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -147,7 +161,10 @@ export default function History() {
                     <div className="p-4">
                       <div className="space-y-2 mb-4">
                         {item.episodes.slice(0, 3).map((ep) => (
-                          <div key={ep.id} className="flex items-center gap-3 text-sm">
+                          <div
+                            key={ep.id}
+                            className="flex items-center gap-3 text-sm"
+                          >
                             <span className="font-mono bg-slate-700/50 px-2 py-1 rounded text-slate-300">
                               {ep.episode}
                             </span>

@@ -7,7 +7,11 @@ import { handleAmazonPrime } from "./routes/amazon-prime";
 import { handleJioHotstar } from "./routes/jio-hotstar";
 import { handleFetchCookie, handleCookieStatus } from "./routes/cookie";
 import { handleEpisodes } from "./routes/episodes";
-import { handleSaveStreaming, handleExportStreaming, handleDeleteStreaming } from "./routes/streaming";
+import {
+  handleSaveStreaming,
+  handleExportStreaming,
+  handleDeleteStreaming,
+} from "./routes/streaming";
 
 export function createServer() {
   const app = express();
