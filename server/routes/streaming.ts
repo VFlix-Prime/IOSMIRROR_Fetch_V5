@@ -27,11 +27,11 @@ const generateFolderPath = (
   seriesName: string,
   seasonNumber: string,
 ): string => {
-  const cleanSeriesName = seriesName
-    .replace(/[^a-zA-Z0-9]/g, "_")
-    .replace(/_+/g, "_")
-    .toLowerCase();
-  return `FetchOTT/${service}/${cleanSeriesName}/Season_${seasonNumber}`;
+  const cleanSeriesName = seriesName.trim();
+  return path.join(
+    process.cwd(),
+    `OTT/${service}/Series/${cleanSeriesName}/Season ${seasonNumber}`,
+  );
 };
 
 // Generate .strm file content
