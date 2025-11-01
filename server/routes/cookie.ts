@@ -78,6 +78,83 @@ export const handleCookieStatus: RequestHandler = async (req, res) => {
   res.json({
     status: tHash ? "success" : "failed",
     hasCookie: !!tHash,
-    cached: !!cachedTHash && Date.now() - cacheTimestamp < CACHE_DURATION,
+    cached: !!cachedCookieHeader && Date.now() - cacheTimestamp < CACHE_DURATION,
   });
+};
+
+export const getPrimeToken = async (): Promise<string | null> => {
+  // Return cached value if still valid
+  if (cachedPrimeToken && Date.now() - tokenCacheTimestamp < CACHE_DURATION) {
+    console.log("Using cached prime token");
+    return cachedPrimeToken;
+  }
+
+  try {
+    console.log("Fetching fresh prime token from net51.cc");
+
+    // First get the cookie
+    const cookieHeader = await getTHash();
+    if (!cookieHeader) {
+      console.error("Failed to get cookie for prime token");
+      return null;
+    }
+
+    // Make request to get prime playlist
+    const url = "https://net51.cc/pv/playlist.php?id=0IOXQJ1CQWMH3Y1FNVUO30OSME&tm=1761932966";
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error("Invalid prime playlist response");
+      return null;
+    }
+
+    // Extract the "in" value from the first item's sources
+    for (const item of data) {
+      if (item.sources && Array.isArray(item.sources)) {
+        for (const source of item.sources) {
+          const fileUrl = source.file || "";
+          const match = fileUrl.match(
+            /in=([a-f0-9]{32}::[a-f0-9]{32}::\d+::[a-z]+)/,
+          );
+          if (match) {
+            const primeToken = `in=${match[1]}`;
+            cachedPrimeToken = primeToken;
+            tokenCacheTimestamp = Date.now();
+            console.log("Successfully fetched prime token");
+            return primeToken;
+          }
+        }
+      }
+    }
+
+    console.error("Could not extract prime token from response");
+    return null;
+  } catch (error) {
+    console.error("Error fetching prime token:", error);
+    return null;
+  }
+};
+
+export const handleFetchToken: RequestHandler = async (req, res) => {
+  try {
+    const primeToken = await getPrimeToken();
+    if (primeToken) {
+      res.json({ success: true, primeToken });
+    } else {
+      res.status(500).json({ success: false, error: "Failed to fetch prime token" });
+    }
+  } catch (error) {
+    console.error("Token fetch error:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch token" });
+  }
 };
