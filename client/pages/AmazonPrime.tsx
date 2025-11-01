@@ -417,6 +417,81 @@ export default function AmazonPrime() {
                 </div>
               )}
 
+              {/* Seasons for Series */}
+              {data.category === "Series" && data.seasons && data.seasons.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Tv className="w-5 h-5 text-slate-400" />
+                    <p className="text-slate-400 text-sm font-medium">SEASONS ({data.seasons.length})</p>
+                  </div>
+
+                  {/* Fetch All Seasons Button */}
+                  <div className="mb-4">
+                    <Button
+                      onClick={handleFetchAllSeasons}
+                      disabled={episodesLoading}
+                      className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0"
+                    >
+                      {episodesLoading && !selectedSeason ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Fetching All Seasons...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" /> Fetch All Seasons
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Individual Season Buttons */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {data.seasons.map((season) => (
+                      <Button
+                        key={season.id}
+                        onClick={() => handleFetchSeason(season)}
+                        disabled={episodesLoading}
+                        variant={
+                          selectedSeason?.id === season.id
+                            ? "default"
+                            : "outline"
+                        }
+                        className={`${
+                          selectedSeason?.id === season.id
+                            ? "bg-red-600 hover:bg-red-700 border-red-600 text-white"
+                            : "border-slate-600 text-slate-300 hover:bg-slate-700"
+                        }`}
+                      >
+                        Season {season.number}
+                      </Button>
+                    ))}
+                  </div>
+
+                  {/* Episodes Grid */}
+                  {episodes.length > 0 && (
+                    <div className="mt-4">
+                      <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-slate-400 text-xs font-medium mb-1">TOTAL EPISODES</p>
+                            <p className="text-2xl font-bold text-green-400">{episodes.length}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {episodes.map((ep) => (
+                          <div key={ep.id} className="bg-slate-800/50 rounded p-3 text-center">
+                            <p className="text-sm font-bold text-white">{ep.title}</p>
+                            <p className="text-xs text-slate-400">{ep.episode}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Search Again Button */}
               <Button
                 onClick={() => {
