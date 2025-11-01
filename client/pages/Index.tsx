@@ -192,8 +192,10 @@ export default function Index() {
                   <CheckCircle2 className="w-5 h-5 text-green-400" />
                   <p className="text-green-300 font-semibold">Cookie Active</p>
                 </div>
-                <div className="bg-slate-900/50 rounded p-3 mb-3 font-mono text-xs text-slate-300 break-all relative">
-                  {tHash}
+                <div className="bg-slate-900/50 rounded p-3 mb-3 font-mono text-xs text-slate-300 relative">
+                  <div className="pr-16 whitespace-pre-wrap break-words max-h-40 overflow-y-auto">
+                    {tHash}
+                  </div>
                   <div className="absolute top-3 right-3 flex gap-2">
                     <button
                       onClick={handleCopyCookie}
