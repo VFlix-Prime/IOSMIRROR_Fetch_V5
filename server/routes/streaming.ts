@@ -1,4 +1,6 @@
 import { RequestHandler } from "express";
+import * as fs from "fs";
+import * as path from "path";
 
 export interface StreamingDetail {
   id: string;
