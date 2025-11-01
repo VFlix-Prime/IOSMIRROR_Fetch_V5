@@ -19,26 +19,40 @@ export default function Index() {
   const [copied, setCopied] = useState(false);
   const handleCopyCookie = async () => {
     if (tHash) {
+      let copied = false;
+
+      // Try Clipboard API first
       try {
-        // Try Clipboard API first
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(tHash);
-        } else {
-          // Fallback for older browsers or restricted contexts
+          copied = true;
+        }
+      } catch (err) {
+        console.log("Clipboard API blocked, using fallback:", err);
+      }
+
+      // Fallback to execCommand if Clipboard API failed
+      if (!copied) {
+        try {
           const textArea = document.createElement("textarea");
           textArea.value = tHash;
           textArea.style.position = "fixed";
           textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
           document.body.appendChild(textArea);
           textArea.focus();
           textArea.select();
-          document.execCommand("copy");
+          const success = document.execCommand("copy");
           document.body.removeChild(textArea);
+          copied = success;
+        } catch (err) {
+          console.error("Fallback copy failed:", err);
         }
+      }
+
+      if (copied) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error("Failed to copy:", err);
       }
     }
   };
