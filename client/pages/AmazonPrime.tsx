@@ -5,11 +5,25 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, AlertCircle, Loader2, Check, Play } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+interface Season {
+  id: string;
+  number: string;
+  episodeCount: number;
+}
+
+interface Episode {
+  id: string;
+  title: string;
+  season: string;
+  episode: string;
+}
+
 interface PrimeData {
   title: string;
   year: string;
   languages: string;
   category: "Movie" | "Series";
+  seasons?: Season[];
 }
 
 export default function AmazonPrime() {
@@ -19,6 +33,11 @@ export default function AmazonPrime() {
   const [data, setData] = useState<PrimeData | null>(null);
   const [generating, setGenerating] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [episodesLoading, setEpisodesLoading] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
