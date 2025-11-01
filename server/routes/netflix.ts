@@ -55,9 +55,15 @@ export const handleNetflix: RequestHandler = async (req, res) => {
   }
 
   try {
-    const response = await fetch(`https://net20.cc/post.php?id=${encodeURIComponent(id)}`);
+    const response = await fetch(`https://net20.cc/post.php?id=${encodeURIComponent(id)}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+      },
+    });
 
     if (!response.ok) {
+      console.error(`API returned status ${response.status}`);
       return res.status(response.status).json({ error: "Failed to fetch data from Netflix API" });
     }
 
