@@ -187,6 +187,60 @@ export const handleDeleteStreaming: RequestHandler = async (req, res) => {
   }
 };
 
+// Generate movie .strm file
+export const handleGenerateMovie: RequestHandler = async (req, res) => {
+  try {
+    const { service, movieName, movieId, primeToken } = req.body;
+
+    if (!service || !movieName || !movieId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const cleanMovieName = movieName.trim();
+    const folderPath = path.join(
+      process.cwd(),
+      `OTT/${service}/Movies/${cleanMovieName}`,
+    );
+
+    try {
+      ensureDirectoryExists(folderPath);
+
+      const fileName = "Movie.strm";
+      const filePath = path.join(folderPath, fileName);
+      const streamUrl = generateStrmContent({ id: movieId }, primeToken);
+
+      fs.writeFileSync(filePath, streamUrl, "utf-8");
+
+      const response = {
+        success: true,
+        movieName,
+        movieId,
+        folderPath,
+        file: {
+          fileName,
+          filePath,
+          streamUrl,
+        },
+        generatedAt: new Date().toISOString(),
+      };
+
+      console.log(
+        `Created movie .strm file for ${movieName} at ${folderPath}`,
+      );
+
+      res.json(response);
+    } catch (error) {
+      console.error(`Error writing movie file:`, error);
+      return res.status(500).json({
+        error: "Failed to write movie file",
+      });
+    }
+  } catch (error) {
+    console.error("Generate movie error:", error);
+    res.status(500).json({ error: "Failed to generate movie file" });
+  }
+};
+
 // Generate and save .strm files
 export const handleGenerateStrm: RequestHandler = async (req, res) => {
   try {
