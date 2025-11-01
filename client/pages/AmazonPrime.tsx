@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, AlertCircle, Loader2, Check, Play, Tv, Film } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useCookie } from "@/hooks/useCookie";
+import { useToken } from "@/hooks/useToken";
+import { useEffect } from "react";
 
 interface Season {
   id: string;
