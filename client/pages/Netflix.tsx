@@ -39,23 +39,25 @@ export default function Netflix() {
 
       const jsonData = await response.json();
 
-      const episodes = jsonData.get?.("episodes", []) || jsonData.episodes || [];
-      const season = jsonData.get?.("season") || jsonData.season;
+      // Extract data from response
+      const episodes = jsonData.episodes || [];
+      const season = jsonData.season;
 
+      // Determine if it's a movie or series
       const category =
         !episodes || (Array.isArray(episodes) && episodes[0] === null) || !season
           ? "Movie"
           : "Series";
 
-      const languages = Array.isArray(jsonData.lang || jsonData.get?.("lang", []))
-        ? (jsonData.lang || jsonData.get?.("lang", []))
-            .map((lang: any) => lang.l || lang)
-            .join(", ")
+      // Extract and format languages
+      const languagesArray = jsonData.lang || [];
+      const languages = Array.isArray(languagesArray)
+        ? languagesArray.map((lang: any) => (typeof lang === 'string' ? lang : lang.l || lang)).join(", ")
         : "";
 
       const result: NetflixData = {
-        title: jsonData.title || jsonData.get?.("title") || "Unknown",
-        year: (jsonData.year || jsonData.get?.("year") || "Unknown").toString(),
+        title: jsonData.title || "Unknown",
+        year: (jsonData.year || "Unknown").toString(),
         languages: languages || "Unknown",
         category,
       };
