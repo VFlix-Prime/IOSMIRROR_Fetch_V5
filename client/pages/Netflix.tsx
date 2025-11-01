@@ -203,6 +203,12 @@ export default function Netflix() {
 
   const generateStrmFiles = async (seasonData: any[]) => {
     try {
+      // Get prime token from localStorage
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
+
       const response = await fetch("/api/generate-strm", {
         method: "POST",
         headers: {
@@ -213,6 +219,7 @@ export default function Netflix() {
           seriesName: data?.title || "Unknown",
           seriesId: id,
           seasons: seasonData,
+          primeToken: primeToken || null,
         }),
       });
 
