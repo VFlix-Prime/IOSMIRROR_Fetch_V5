@@ -226,9 +226,12 @@ export default function Netflix() {
         if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
         setHistory([jr, ...history]);
         setShowHistory(true);
-        // mark as seen
+        // mark as seen (top10 + all posters)
         try {
           await fetch("/api/netflix/top10/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+        } catch (_) {}
+        try {
+          await fetch("/api/netflix/posters/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
         } catch (_) {}
       } else if (meta.category === "Series") {
         // collect seasons
