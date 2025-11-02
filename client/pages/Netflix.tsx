@@ -645,7 +645,7 @@ export default function Netflix() {
             ) : postersAll.length === 0 ? (
               <div className="text-slate-400">No posters found</div>
             ) : (
-              <div className="grid grid-cols-5 md:grid-cols-10 gap-3">
+              <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
                 {postersAll.map((p) => (
                   <div key={p.id} className="bg-slate-800/50 rounded p-2 text-center">
                     <img src={p.poster} alt={`poster-${p.id}`} className="w-full h-40 object-contain rounded mb-2" />
