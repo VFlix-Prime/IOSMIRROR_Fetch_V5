@@ -4,6 +4,7 @@ interface SearchResult {
   id: string;
   title: string;
   provider: "netflix" | "prime";
+  poster: string;
   year?: string;
   duration?: string;
 }
@@ -49,6 +50,7 @@ const searchNetflix = async (query: string): Promise<SearchResult[]> => {
         id: item.id,
         title: item.t,
         provider: "netflix" as const,
+        poster: `https://net51.cc/poster/v/${item.id}.jpg`,
         year: item.y,
         duration: item.r,
       }));
@@ -84,6 +86,7 @@ const searchPrime = async (query: string): Promise<SearchResult[]> => {
         id: item.id,
         title: item.t,
         provider: "prime" as const,
+        poster: `https://wsrv.nl/?url=https://imgcdn.kim/pv/v/${encodeURIComponent(item.id)}.jpg&w=500`,
       }));
     }
     return [];
