@@ -69,5 +69,10 @@ export function createServer() {
   app.post("/api/netflix/posters/refresh", handleRefreshAllPosters);
   app.post("/api/netflix/posters/mark", handleMarkAllPosters);
 
+  // Amazon Prime posters (cached)
+  app.get("/api/amazon-prime/posters", handleGetAmazonPrimePosters);
+  app.post("/api/amazon-prime/posters/refresh", handleRefreshAmazonPrimePosters);
+  app.post("/api/amazon-prime/posters/mark", handleMarkAmazonPrimePosters);
+
   return app;
 }
