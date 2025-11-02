@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
 import { useState } from "react";
+import UnifiedSearch from "@/components/UnifiedSearch";
 
 export default function Index() {
   const { tHash, loading, error, fetchCookie, hasCookie, clearCookie } =
