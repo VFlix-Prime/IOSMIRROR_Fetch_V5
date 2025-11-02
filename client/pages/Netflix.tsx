@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +90,228 @@ export default function Netflix() {
   const [episodesLoading, setEpisodesLoading] = useState(false);
   const [history, setHistory] = useState<StrmGenerationResult[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+
+  // Per-service save location (Netflix)
+  const [savePath, setSavePath] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState("");
+
+  // Top10 posters
+  const [top10, setTop10] = useState<
+    Array<{ id: string; poster: string; seen?: boolean }>
+  >([]);
+  const [topLoading, setTopLoading] = useState(false);
+  const [topStatus, setTopStatus] = useState("");
+
+  // All posters (full page)
+  const [postersAll, setPostersAll] = useState<
+    Array<{ id: string; poster: string; seen?: boolean }>
+  >([]);
+  const [postersLoading, setPostersLoading] = useState(false);
+  const [postersStatus, setPostersStatus] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/settings");
+        const json = await res.json();
+        if (json && json.settings) {
+          const s = json.settings;
+          setSavePath(s.netflixBaseFolder || s.defaultBaseFolder || "");
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // fetch cached top10 posters
+      setTopLoading(true);
+      try {
+        const r = await fetch("/api/netflix/top10");
+        const j = await r.json();
+        if (j && Array.isArray(j.items)) setTop10(j.items.slice(0, 10));
+      } catch (_) {
+        // ignore
+      } finally {
+        setTopLoading(false);
+      }
+
+      // fetch cached full posters list
+      setPostersLoading(true);
+      try {
+        const r2 = await fetch("/api/netflix/posters");
+        const j2 = await r2.json();
+        if (j2 && Array.isArray(j2.items)) setPostersAll(j2.items || []);
+      } catch (_) {
+        // ignore
+      } finally {
+        setPostersLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const handleRefreshTop10 = async () => {
+    setTopStatus("");
+    setTopLoading(true);
+    try {
+      const r = await fetch("/api/netflix/top10/refresh", { method: "POST" });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
+      setTop10(j.items.slice(0, 10));
+      setTopStatus(j.newCount ? `${j.newCount} new` : "Up to date");
+    } catch (e) {
+      setTopStatus("Refresh failed");
+    } finally {
+      setTopLoading(false);
+      setTimeout(() => setTopStatus(""), 3000);
+    }
+  };
+
+  const handleRefreshAllPosters = async () => {
+    setPostersStatus("");
+    setPostersLoading(true);
+    try {
+      const r = await fetch("/api/netflix/posters/refresh", { method: "POST" });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
+      setPostersAll(j.items || []);
+      setPostersStatus(j.newCount ? `${j.newCount} new` : "Up to date");
+    } catch (e) {
+      setPostersStatus("Refresh failed");
+    } finally {
+      setPostersLoading(false);
+      setTimeout(() => setPostersStatus(""), 3000);
+    }
+  };
+
+  const handleSavePath = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ netflixBaseFolder: savePath }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to save");
+      }
+      setSaveStatus("Saved");
+    } catch (e) {
+      setSaveStatus("Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const fetchMetadataAndGenerate = async (serviceId: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const resp = await fetch(
+        `/api/netflix?id=${encodeURIComponent(serviceId)}`,
+      );
+      const meta = await resp.json();
+      if (!resp.ok) throw new Error(meta.error || "Failed to fetch metadata");
+
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
+
+      if (meta.category === "Movie") {
+        const genRes = await fetch("/api/generate-movie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service: "netflix",
+            movieName: meta.title,
+            movieId: serviceId,
+            primeToken: primeToken || null,
+          }),
+        });
+        const jr = await genRes.json();
+        if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
+        setHistory([jr, ...history]);
+        setShowHistory(true);
+        // mark as seen (top10 + all posters)
+        try {
+          await fetch("/api/netflix/top10/mark", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: [serviceId] }),
+          });
+        } catch (_) {}
+        try {
+          await fetch("/api/netflix/posters/mark", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: [serviceId] }),
+          });
+        } catch (_) {}
+      } else if (meta.category === "Series") {
+        // collect seasons
+        const seasons = meta.seasons || [];
+        const seasonData: any[] = [];
+        for (const s of seasons) {
+          try {
+            const r = await fetch(
+              `/api/episodes?seriesId=${encodeURIComponent(serviceId)}&seasonId=${encodeURIComponent(s.id)}`,
+            );
+            const j = await r.json();
+            if (r.ok && j.episodes) {
+              seasonData.push({
+                number: s.number,
+                id: s.id,
+                episodes: j.episodes,
+              });
+            }
+          } catch (e) {
+            // skip this season
+          }
+        }
+        if (seasonData.length > 0) {
+          const genRes = await fetch("/api/generate-strm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              service: "netflix",
+              seriesName: meta.title,
+              seriesId: serviceId,
+              seasons: seasonData,
+              primeToken: primeToken || null,
+            }),
+          });
+          const jr = await genRes.json();
+          if (!genRes.ok)
+            throw new Error(jr.error || "Failed to generate .strm files");
+          setHistory([jr, ...history]);
+          setShowHistory(true);
+          try {
+            await fetch("/api/netflix/top10/mark", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ids: [serviceId] }),
+            });
+          } catch (_) {}
+          try {
+            await fetch("/api/netflix/posters/mark", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ids: [serviceId] }),
+            });
+          } catch (_) {}
+        }
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to generate from poster",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -323,7 +545,7 @@ export default function Netflix() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-2xl mx-auto px-6 py-12">
+        <div className="w-full max-w-full mx-0 px-6 py-12">
           {/* Search Form */}
           <form onSubmit={handleSearch} className="mb-12">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700">
@@ -356,6 +578,169 @@ export default function Netflix() {
               </div>
             </div>
           </form>
+
+          {/* Save Location for Netflix */}
+          <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 mb-8">
+            <label className="block text-white font-semibold mb-2">
+              Save Location
+            </label>
+            <div className="flex gap-3">
+              <Input
+                type="text"
+                placeholder="Base folder path"
+                value={savePath}
+                onChange={(e) => setSavePath(e.target.value)}
+                className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-red-500"
+                disabled={saving}
+              />
+              <Button
+                onClick={handleSavePath}
+                disabled={saving}
+                className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-8"
+              >
+                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save"}
+              </Button>
+            </div>
+            {saveStatus && (
+              <p className="text-slate-400 text-sm mt-2">{saveStatus}</p>
+            )}
+          </div>
+
+          {/* Top10 Posters / Latest Release */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl text-white font-bold">Latest Releases</h2>
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 text-sm">{topStatus}</span>
+                <Button
+                  onClick={handleRefreshTop10}
+                  className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                >
+                  {topLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Refresh"
+                  )}
+                </Button>
+              </div>
+            </div>
+            {topLoading ? (
+              <div className="text-slate-400">Loading...</div>
+            ) : top10.length === 0 ? (
+              <div className="text-slate-400">No posters found</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
+                  <img
+                    src={top10[0].poster}
+                    alt="Latest poster"
+                    className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
+                  />
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => fetchMetadataAndGenerate(top10[0].id)}
+                      disabled={loading}
+                      className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-6"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        "Fetch & Add .strm"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {top10.slice(0, 9).map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-slate-800/50 rounded-lg p-2 text-center"
+                      >
+                        <img
+                          src={item.poster}
+                          alt={`poster-${item.id}`}
+                          className="w-full h-56 object-contain rounded mb-2"
+                        />
+                        <div className="flex gap-2 justify-center">
+                          <Button
+                            onClick={() => fetchMetadataAndGenerate(item.id)}
+                            className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
+                          >
+                            Fetch
+                          </Button>
+                          <Button
+                            onClick={() => setId(item.id)}
+                            variant="outline"
+                            className="px-4 py-1 text-sm"
+                          >
+                            Use ID
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* All Posters (full page) */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl text-white font-bold">All Posters</h2>
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 text-sm">{postersStatus}</span>
+                <Button
+                  onClick={handleRefreshAllPosters}
+                  className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                >
+                  {postersLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Refresh All"
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {postersLoading ? (
+              <div className="text-slate-400">Loading...</div>
+            ) : postersAll.length === 0 ? (
+              <div className="text-slate-400">No posters found</div>
+            ) : (
+              <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
+                {postersAll.map((p) => (
+                  <div
+                    key={p.id}
+                    className="bg-slate-800/50 rounded p-2 text-center"
+                  >
+                    <img
+                      src={p.poster}
+                      alt={`poster-${p.id}`}
+                      className="w-full h-40 object-contain rounded mb-2"
+                    />
+                    <div className="flex gap-1 justify-center">
+                      <Button
+                        onClick={() => fetchMetadataAndGenerate(p.id)}
+                        className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-3 py-1 text-xs"
+                      >
+                        Fetch
+                      </Button>
+                      <Button
+                        onClick={() => setId(p.id)}
+                        variant="outline"
+                        className="px-2 py-1 text-xs"
+                      >
+                        Use
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Error Alert */}
           {error && (
