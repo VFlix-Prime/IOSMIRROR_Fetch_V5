@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import * as fs from "fs";
 import * as path from "path";
-import { getSettings } from "../utils/settings";
+import { getSettings, getBaseFolderForService } from "../utils/settings";
 
 export interface StreamingDetail {
   id: string;
