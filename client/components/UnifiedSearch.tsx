@@ -199,27 +199,20 @@ export default function UnifiedSearch() {
                       {fetchingId === `${result.provider}-${result.id}` ? (
                         <>
                           <Loader2 className="w-3 h-3 animate-spin mr-2 inline" />
-                          Fetching...
+                          Opening...
                         </>
                       ) : result.provider === "netflix" ? (
                         <>
                           <Play className="w-3 h-3 mr-2 inline" />
-                          Fetch Netflix
+                          Open Netflix
                         </>
                       ) : (
                         <>
                           <Film className="w-3 h-3 mr-2 inline" />
-                          Fetch Prime
+                          Open Prime
                         </>
                       )}
                     </Button>
-
-                    {fetchError &&
-                      fetchingId === `${result.provider}-${result.id}` && (
-                        <div className="mt-2 text-red-400 text-xs">
-                          {fetchError}
-                        </div>
-                      )}
                   </div>
                 </div>
               ))}
