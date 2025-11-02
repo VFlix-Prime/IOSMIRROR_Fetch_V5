@@ -110,6 +110,11 @@ export default function Netflix() {
   const [postersLoading, setPostersLoading] = useState(false);
   const [postersStatus, setPostersStatus] = useState("");
 
+  // Show/hide posters and fetching state
+  const [showPosters, setShowPosters] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState("");
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -206,7 +211,9 @@ export default function Netflix() {
   };
 
   const fetchMetadataAndGenerate = async (serviceId: string) => {
-    setLoading(true);
+    setIsFetching(true);
+    setShowPosters(false);
+    setFetchProgress("Fetching metadata...");
     setError("");
     try {
       const resp = await fetch(
@@ -221,6 +228,7 @@ export default function Netflix() {
           : null;
 
       if (meta.category === "Movie") {
+        setFetchProgress("Generating movie .strm file...");
         const genRes = await fetch("/api/generate-movie", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -233,8 +241,14 @@ export default function Netflix() {
         });
         const jr = await genRes.json();
         if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
+        setFetchProgress(`✓ Successfully generated: ${meta.title}`);
         setHistory([jr, ...history]);
         setShowHistory(true);
+        setTimeout(() => {
+          setIsFetching(false);
+          setShowPosters(true);
+          setFetchProgress("");
+        }, 2000);
         // mark as seen (top10 + all posters)
         try {
           await fetch("/api/netflix/top10/mark", {
@@ -254,8 +268,12 @@ export default function Netflix() {
         // collect seasons
         const seasons = meta.seasons || [];
         const seasonData: any[] = [];
+        let processedSeasons = 0;
         for (const s of seasons) {
           try {
+            setFetchProgress(
+              `Fetching episodes... (${processedSeasons + 1}/${seasons.length} seasons)`,
+            );
             const r = await fetch(
               `/api/episodes?seriesId=${encodeURIComponent(serviceId)}&seasonId=${encodeURIComponent(s.id)}`,
             );
@@ -267,11 +285,13 @@ export default function Netflix() {
                 episodes: j.episodes,
               });
             }
+            processedSeasons++;
           } catch (e) {
             // skip this season
           }
         }
         if (seasonData.length > 0) {
+          setFetchProgress("Generating .strm files...");
           const genRes = await fetch("/api/generate-strm", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -286,8 +306,14 @@ export default function Netflix() {
           const jr = await genRes.json();
           if (!genRes.ok)
             throw new Error(jr.error || "Failed to generate .strm files");
+          setFetchProgress(`✓ Successfully generated: ${meta.title}`);
           setHistory([jr, ...history]);
           setShowHistory(true);
+          setTimeout(() => {
+            setIsFetching(false);
+            setShowPosters(true);
+            setFetchProgress("");
+          }, 2000);
           try {
             await fetch("/api/netflix/top10/mark", {
               method: "POST",
@@ -308,8 +334,9 @@ export default function Netflix() {
       setError(
         err instanceof Error ? err.message : "Failed to generate from poster",
       );
-    } finally {
-      setLoading(false);
+      setIsFetching(false);
+      setShowPosters(true);
+      setFetchProgress("");
     }
   };
 
@@ -606,90 +633,169 @@ export default function Netflix() {
             )}
           </div>
 
-          {/* Top10 Posters / Latest Release */}
-          <div className="mb-8">
+          {/* Poster Controls - Always visible */}
+          {!isFetching && (
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl text-white font-bold">Latest Releases</h2>
+              <h2 className="text-xl text-white font-bold">
+                {showPosters ? "Latest Releases" : "Posters"}
+              </h2>
               <div className="flex items-center gap-3">
-                <span className="text-slate-400 text-sm">{topStatus}</span>
                 <Button
-                  onClick={handleRefreshTop10}
+                  onClick={() => setShowPosters(!showPosters)}
                   className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
                 >
-                  {topLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Refresh"
-                  )}
+                  {showPosters ? "Hide Posters" : "Show Posters"}
                 </Button>
-              </div>
-            </div>
-            {topLoading ? (
-              <div className="text-slate-400">Loading...</div>
-            ) : top10.length === 0 ? (
-              <div className="text-slate-400">No posters found</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
-                  <img
-                    src={top10[0].poster}
-                    alt="Latest poster"
-                    className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
-                  />
-                  <div className="flex gap-3">
+                {showPosters && (
+                  <>
+                    <span className="text-slate-400 text-sm">{topStatus}</span>
                     <Button
-                      onClick={() => fetchMetadataAndGenerate(top10[0].id)}
-                      disabled={loading}
-                      className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-6"
+                      onClick={handleRefreshTop10}
+                      className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
                     >
-                      {loading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                      {topLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        "Fetch & Add .strm"
+                        "Refresh"
                       )}
                     </Button>
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {top10.slice(0, 9).map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-slate-800/50 rounded-lg p-2 text-center"
-                      >
-                        <img
-                          src={item.poster}
-                          alt={`poster-${item.id}`}
-                          className="w-full h-56 object-contain rounded mb-2"
-                        />
-                        <div className="flex gap-2 justify-center">
-                          <Button
-                            onClick={() => fetchMetadataAndGenerate(item.id)}
-                            className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
-                          >
-                            Fetch
-                          </Button>
-                          <Button
-                            onClick={() => setId(item.id)}
-                            variant="outline"
-                            className="px-4 py-1 text-sm"
-                          >
-                            Use ID
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Progress Display or Top10 Posters / Latest Release */}
+          {isFetching ? (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl text-white font-bold">Processing</h2>
+                <Button
+                  onClick={() => setShowPosters(!showPosters)}
+                  className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                >
+                  {showPosters ? "Hide Posters" : "Show Posters"}
+                </Button>
+              </div>
+              <div className="bg-slate-800/50 rounded-2xl p-8 border border-red-500/30 flex flex-col items-center justify-center min-h-96">
+                <Loader2 className="w-16 h-16 animate-spin text-red-400 mb-6" />
+                <p className="text-white text-lg font-semibold text-center">
+                  {fetchProgress}
+                </p>
+              </div>
+            </div>
+          ) : showPosters ? (
+            <div className="mb-8">
+              {topLoading ? (
+                <div className="text-slate-400">Loading...</div>
+              ) : top10.length === 0 ? (
+                <div className="text-slate-400">No posters found</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
+                    <img
+                      src={top10[0].poster}
+                      alt="Latest poster"
+                      className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
+                    />
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => fetchMetadataAndGenerate(top10[0].id)}
+                        disabled={loading || isFetching}
+                        className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-6"
+                      >
+                        {loading || isFetching ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          "Fetch & Add .strm"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {top10.slice(0, 9).map((item) => (
+                        <div
+                          key={item.id}
+                          className="bg-slate-800/50 rounded-lg p-2 text-center"
+                        >
+                          <img
+                            src={item.poster}
+                            alt={`poster-${item.id}`}
+                            className="w-full h-56 object-contain rounded mb-2"
+                          />
+                          <div className="flex gap-2 justify-center">
+                            <Button
+                              onClick={() => fetchMetadataAndGenerate(item.id)}
+                              disabled={loading || isFetching}
+                              className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
+                            >
+                              Fetch
+                            </Button>
+                            <Button
+                              onClick={() => setId(item.id)}
+                              variant="outline"
+                              className="px-4 py-1 text-sm"
+                            >
+                              Use ID
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {/* All Posters (full page) */}
-          <div className="mb-8">
+          {showPosters && !isFetching && (
+            <div className="mb-8">
+              {postersLoading ? (
+                <div className="text-slate-400">Loading...</div>
+              ) : postersAll.length === 0 ? (
+                <div className="text-slate-400">No posters found</div>
+              ) : (
+                <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
+                  {postersAll.map((p) => (
+                    <div
+                      key={p.id}
+                      className="bg-slate-800/50 rounded p-2 text-center"
+                    >
+                      <img
+                        src={p.poster}
+                        alt={`poster-${p.id}`}
+                        className="w-full h-40 object-contain rounded mb-2"
+                      />
+                      <div className="flex gap-1 justify-center">
+                        <Button
+                          onClick={() => fetchMetadataAndGenerate(p.id)}
+                          disabled={loading || isFetching}
+                          className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-3 py-1 text-xs"
+                        >
+                          Fetch
+                        </Button>
+                        <Button
+                          onClick={() => setId(p.id)}
+                          variant="outline"
+                          className="px-2 py-1 text-xs"
+                        >
+                          Use
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* All Posters Refresh Button */}
+          {showPosters && !isFetching && (
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl text-white font-bold">All Posters</h2>
+              <div />
               <div className="flex items-center gap-3">
                 <span className="text-slate-400 text-sm">{postersStatus}</span>
                 <Button
@@ -704,43 +810,7 @@ export default function Netflix() {
                 </Button>
               </div>
             </div>
-
-            {postersLoading ? (
-              <div className="text-slate-400">Loading...</div>
-            ) : postersAll.length === 0 ? (
-              <div className="text-slate-400">No posters found</div>
-            ) : (
-              <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
-                {postersAll.map((p) => (
-                  <div
-                    key={p.id}
-                    className="bg-slate-800/50 rounded p-2 text-center"
-                  >
-                    <img
-                      src={p.poster}
-                      alt={`poster-${p.id}`}
-                      className="w-full h-40 object-contain rounded mb-2"
-                    />
-                    <div className="flex gap-1 justify-center">
-                      <Button
-                        onClick={() => fetchMetadataAndGenerate(p.id)}
-                        className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-3 py-1 text-xs"
-                      >
-                        Fetch
-                      </Button>
-                      <Button
-                        onClick={() => setId(p.id)}
-                        variant="outline"
-                        className="px-2 py-1 text-xs"
-                      >
-                        Use
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
 
           {/* Error Alert */}
           {error && (
