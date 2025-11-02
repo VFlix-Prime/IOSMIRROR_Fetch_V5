@@ -262,6 +262,7 @@ export default function AmazonPrime() {
           setShowHistory(true);
           setTimeout(() => {
             setIsFetching(false);
+            setShowPosters(true);
             setFetchProgress("");
           }, 2000);
           try {
