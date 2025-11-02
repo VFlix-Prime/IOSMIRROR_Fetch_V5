@@ -130,6 +130,18 @@ export default function Netflix() {
       } finally {
         setTopLoading(false);
       }
+
+      // fetch cached full posters list
+      setPostersLoading(true);
+      try {
+        const r2 = await fetch("/api/netflix/posters");
+        const j2 = await r2.json();
+        if (j2 && Array.isArray(j2.items)) setPostersAll(j2.items || []);
+      } catch (_) {
+        // ignore
+      } finally {
+        setPostersLoading(false);
+      }
     };
     load();
   }, []);
