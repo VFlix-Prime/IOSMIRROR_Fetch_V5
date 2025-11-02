@@ -15,7 +15,6 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
-import { useEffect } from "react";
 
 interface Season {
   id: string;
