@@ -548,7 +548,9 @@ export default function AmazonPrime() {
                 </Button>
                 {showPosters && (
                   <>
-                    <span className="text-slate-400 text-sm">{postersStatus}</span>
+                    <span className="text-slate-400 text-sm">
+                      {postersStatus}
+                    </span>
                     <Button
                       onClick={handleRefreshPosters}
                       className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
@@ -675,7 +677,9 @@ export default function AmazonPrime() {
                       />
                       <div className="flex gap-1 justify-center">
                         <Button
-                          onClick={() => fetchMetadataAndGenerateFromAmazon(p.id)}
+                          onClick={() =>
+                            fetchMetadataAndGenerateFromAmazon(p.id)
+                          }
                           disabled={loading || isFetching}
                           className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-3 py-1 text-xs"
                         >
