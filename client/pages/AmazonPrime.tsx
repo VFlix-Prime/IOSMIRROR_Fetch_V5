@@ -143,6 +143,94 @@ export default function AmazonPrime() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleRefreshPosters = async () => {
+    setPostersStatus("");
+    setPostersLoading(true);
+    try {
+      const r = await fetch("/api/amazon-prime/posters/refresh", { method: "POST" });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
+      setPostersAll(j.items || []);
+      setSlider(j.slider || []);
+      setPostersStatus(j.newCount ? `${j.newCount} new` : "Up to date");
+    } catch (e) {
+      setPostersStatus("Refresh failed");
+    } finally {
+      setPostersLoading(false);
+      setTimeout(() => setPostersStatus(""), 3000);
+    }
+  };
+
+  const fetchMetadataAndGenerateFromAmazon = async (serviceId: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const resp = await fetch(`/api/amazon-prime?id=${encodeURIComponent(serviceId)}`);
+      const meta = await resp.json();
+      if (!resp.ok) throw new Error(meta.error || "Failed to fetch metadata");
+
+      const primeToken = typeof window !== "undefined" ? localStorage.getItem("prime_token") : null;
+
+      if (meta.category === "Movie") {
+        const genRes = await fetch("/api/generate-movie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service: "amazon-prime",
+            movieName: meta.title,
+            movieId: serviceId,
+            primeToken: primeToken || null,
+          }),
+        });
+        const jr = await genRes.json();
+        if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
+        setHistory([jr, ...history]);
+        setShowHistory(true);
+        try {
+          await fetch("/api/amazon-prime/posters/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+        } catch (_) {}
+      } else if (meta.category === "Series") {
+        const seasons = meta.seasons || [];
+        const seasonData: any[] = [];
+        for (const s of seasons) {
+          try {
+            const r = await fetch(`/api/episodes?seriesId=${encodeURIComponent(serviceId)}&seasonId=${encodeURIComponent(s.id)}&service=amazon-prime`);
+            const j = await r.json();
+            if (r.ok && j.episodes) {
+              seasonData.push({ number: s.number, id: s.id, episodes: j.episodes });
+            }
+          } catch (e) {
+            // skip
+          }
+        }
+        if (seasonData.length > 0) {
+          const genRes = await fetch("/api/generate-strm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              service: "amazon-prime",
+              seriesName: meta.title,
+              seriesId: serviceId,
+              seasons: seasonData,
+              primeToken: primeToken || null,
+            }),
+          });
+          const jr = await genRes.json();
+          if (!genRes.ok) throw new Error(jr.error || "Failed to generate .strm files");
+          setHistory([jr, ...history]);
+          setShowHistory(true);
+          try {
+            await fetch("/api/amazon-prime/posters/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+          } catch (_) {}
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate from poster");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
