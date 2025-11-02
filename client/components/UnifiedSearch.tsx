@@ -50,20 +50,15 @@ export default function UnifiedSearch() {
     setSearched(true);
 
     try {
-      const [netflixResults, primeResults] = await Promise.all([
-        searchNetflix(query),
-        searchPrime(query),
-      ]);
+      const results = await performSearch(query);
 
-      const allResults = [...netflixResults, ...primeResults];
-
-      if (allResults.length === 0) {
+      if (results.length === 0) {
         setError("No results found");
       } else {
-        setResults(allResults);
+        setResults(results);
       }
     } catch (err) {
-      setError("An error occurred while searching");
+      setError("An error occurred while searching. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
