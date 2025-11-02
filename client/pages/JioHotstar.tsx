@@ -365,7 +365,9 @@ export default function JioHotstar() {
 
           {/* Save Location for JioHotstar */}
           <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 mb-8">
-            <label className="block text-white font-semibold mb-2">Save Location</label>
+            <label className="block text-white font-semibold mb-2">
+              Save Location
+            </label>
             <div className="flex gap-3">
               <Input
                 type="text"

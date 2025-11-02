@@ -58,7 +58,9 @@ export default function AmazonPrime() {
 
   // load settings and cached posters
   const [slider, setSlider] = useState<Array<any>>([]);
-  const [postersAll, setPostersAll] = useState<Array<{ id: string; poster: string; cate?: string; seen?: boolean }>>([]);
+  const [postersAll, setPostersAll] = useState<
+    Array<{ id: string; poster: string; cate?: string; seen?: boolean }>
+  >([]);
   const [postersLoading, setPostersLoading] = useState(false);
   const [postersStatus, setPostersStatus] = useState("");
 
@@ -147,7 +149,9 @@ export default function AmazonPrime() {
     setPostersStatus("");
     setPostersLoading(true);
     try {
-      const r = await fetch("/api/amazon-prime/posters/refresh", { method: "POST" });
+      const r = await fetch("/api/amazon-prime/posters/refresh", {
+        method: "POST",
+      });
       const j = await r.json();
       if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
       setPostersAll(j.items || []);
@@ -165,11 +169,16 @@ export default function AmazonPrime() {
     setLoading(true);
     setError("");
     try {
-      const resp = await fetch(`/api/amazon-prime?id=${encodeURIComponent(serviceId)}`);
+      const resp = await fetch(
+        `/api/amazon-prime?id=${encodeURIComponent(serviceId)}`,
+      );
       const meta = await resp.json();
       if (!resp.ok) throw new Error(meta.error || "Failed to fetch metadata");
 
-      const primeToken = typeof window !== "undefined" ? localStorage.getItem("prime_token") : null;
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
 
       if (meta.category === "Movie") {
         const genRes = await fetch("/api/generate-movie", {
@@ -187,17 +196,27 @@ export default function AmazonPrime() {
         setHistory([jr, ...history]);
         setShowHistory(true);
         try {
-          await fetch("/api/amazon-prime/posters/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+          await fetch("/api/amazon-prime/posters/mark", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: [serviceId] }),
+          });
         } catch (_) {}
       } else if (meta.category === "Series") {
         const seasons = meta.seasons || [];
         const seasonData: any[] = [];
         for (const s of seasons) {
           try {
-            const r = await fetch(`/api/episodes?seriesId=${encodeURIComponent(serviceId)}&seasonId=${encodeURIComponent(s.id)}&service=amazon-prime`);
+            const r = await fetch(
+              `/api/episodes?seriesId=${encodeURIComponent(serviceId)}&seasonId=${encodeURIComponent(s.id)}&service=amazon-prime`,
+            );
             const j = await r.json();
             if (r.ok && j.episodes) {
-              seasonData.push({ number: s.number, id: s.id, episodes: j.episodes });
+              seasonData.push({
+                number: s.number,
+                id: s.id,
+                episodes: j.episodes,
+              });
             }
           } catch (e) {
             // skip
@@ -216,16 +235,23 @@ export default function AmazonPrime() {
             }),
           });
           const jr = await genRes.json();
-          if (!genRes.ok) throw new Error(jr.error || "Failed to generate .strm files");
+          if (!genRes.ok)
+            throw new Error(jr.error || "Failed to generate .strm files");
           setHistory([jr, ...history]);
           setShowHistory(true);
           try {
-            await fetch("/api/amazon-prime/posters/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+            await fetch("/api/amazon-prime/posters/mark", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ids: [serviceId] }),
+            });
           } catch (_) {}
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate from poster");
+      setError(
+        err instanceof Error ? err.message : "Failed to generate from poster",
+      );
     } finally {
       setLoading(false);
     }
@@ -455,7 +481,9 @@ export default function AmazonPrime() {
 
           {/* Save Location for Amazon Prime */}
           <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700 mb-8">
-            <label className="block text-white font-semibold mb-2">Save Location</label>
+            <label className="block text-white font-semibold mb-2">
+              Save Location
+            </label>
             <div className="flex gap-3">
               <Input
                 type="text"
@@ -484,8 +512,15 @@ export default function AmazonPrime() {
               <h2 className="text-xl text-white font-bold">Featured</h2>
               <div className="flex items-center gap-3">
                 <span className="text-slate-400 text-sm">{postersStatus}</span>
-                <Button onClick={handleRefreshPosters} className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm">
-                  {postersLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh"}
+                <Button
+                  onClick={handleRefreshPosters}
+                  className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                >
+                  {postersLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Refresh"
+                  )}
                 </Button>
               </div>
             </div>
@@ -497,14 +532,24 @@ export default function AmazonPrime() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
-                  <img src={slider[0].poster} alt="Featured poster" className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]" />
+                  <img
+                    src={slider[0].poster}
+                    alt="Featured poster"
+                    className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
+                  />
                   <div className="flex gap-3">
                     <Button
-                      onClick={() => fetchMetadataAndGenerateFromAmazon(slider[0].id)}
+                      onClick={() =>
+                        fetchMetadataAndGenerateFromAmazon(slider[0].id)
+                      }
                       disabled={loading}
                       className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-6"
                     >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Fetch & Add .strm"}
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        "Fetch & Add .strm"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -512,11 +557,20 @@ export default function AmazonPrime() {
                 <div className="md:col-span-2">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {slider.slice(0, 9).map((item: any) => (
-                      <div key={item.id} className="bg-slate-800/50 rounded-lg p-2 text-center">
-                        <img src={item.poster} alt={`poster-${item.id}`} className="w-full h-56 object-contain rounded mb-2" />
+                      <div
+                        key={item.id}
+                        className="bg-slate-800/50 rounded-lg p-2 text-center"
+                      >
+                        <img
+                          src={item.poster}
+                          alt={`poster-${item.id}`}
+                          className="w-full h-56 object-contain rounded mb-2"
+                        />
                         <div className="flex gap-2 justify-center">
                           <Button
-                            onClick={() => fetchMetadataAndGenerateFromAmazon(item.id)}
+                            onClick={() =>
+                              fetchMetadataAndGenerateFromAmazon(item.id)
+                            }
                             className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
                           >
                             Fetch
@@ -543,8 +597,15 @@ export default function AmazonPrime() {
               <h2 className="text-xl text-white font-bold">All Posters</h2>
               <div className="flex items-center gap-3">
                 <span className="text-slate-400 text-sm">{postersStatus}</span>
-                <Button onClick={handleRefreshPosters} className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm">
-                  {postersLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh All"}
+                <Button
+                  onClick={handleRefreshPosters}
+                  className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                >
+                  {postersLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Refresh All"
+                  )}
                 </Button>
               </div>
             </div>
@@ -556,13 +617,27 @@ export default function AmazonPrime() {
             ) : (
               <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
                 {postersAll.map((p) => (
-                  <div key={p.id} className="bg-slate-800/50 rounded p-2 text-center">
-                    <img src={p.poster} alt={`poster-${p.id}`} className="w-full h-40 object-contain rounded mb-2" />
+                  <div
+                    key={p.id}
+                    className="bg-slate-800/50 rounded p-2 text-center"
+                  >
+                    <img
+                      src={p.poster}
+                      alt={`poster-${p.id}`}
+                      className="w-full h-40 object-contain rounded mb-2"
+                    />
                     <div className="flex gap-1 justify-center">
-                      <Button onClick={() => fetchMetadataAndGenerateFromAmazon(p.id)} className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-3 py-1 text-xs">
+                      <Button
+                        onClick={() => fetchMetadataAndGenerateFromAmazon(p.id)}
+                        className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-3 py-1 text-xs"
+                      >
                         Fetch
                       </Button>
-                      <Button onClick={() => setId(p.id)} variant="outline" className="px-2 py-1 text-xs">
+                      <Button
+                        onClick={() => setId(p.id)}
+                        variant="outline"
+                        className="px-2 py-1 text-xs"
+                      >
                         Use
                       </Button>
                     </div>

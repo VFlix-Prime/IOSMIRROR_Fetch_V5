@@ -29,19 +29,23 @@ export function getSettings(): AppSettings {
       if (parsed && typeof parsed === "object") {
         const base: AppSettings = {
           defaultBaseFolder:
-            typeof parsed.defaultBaseFolder === "string" && parsed.defaultBaseFolder.length > 0
+            typeof parsed.defaultBaseFolder === "string" &&
+            parsed.defaultBaseFolder.length > 0
               ? parsed.defaultBaseFolder
               : DEFAULT_SETTINGS.defaultBaseFolder,
           netflixBaseFolder:
-            typeof parsed.netflixBaseFolder === "string" && parsed.netflixBaseFolder.length > 0
+            typeof parsed.netflixBaseFolder === "string" &&
+            parsed.netflixBaseFolder.length > 0
               ? parsed.netflixBaseFolder
               : undefined,
           amazonPrimeBaseFolder:
-            typeof parsed.amazonPrimeBaseFolder === "string" && parsed.amazonPrimeBaseFolder.length > 0
+            typeof parsed.amazonPrimeBaseFolder === "string" &&
+            parsed.amazonPrimeBaseFolder.length > 0
               ? parsed.amazonPrimeBaseFolder
               : undefined,
           jioHotstarBaseFolder:
-            typeof parsed.jioHotstarBaseFolder === "string" && parsed.jioHotstarBaseFolder.length > 0
+            typeof parsed.jioHotstarBaseFolder === "string" &&
+            parsed.jioHotstarBaseFolder.length > 0
               ? parsed.jioHotstarBaseFolder
               : undefined,
         };
@@ -68,7 +72,8 @@ export function setSettings(next: Partial<AppSettings>): AppSettings {
     val && val.trim().length > 0 ? path.resolve(val.trim()) : undefined;
 
   if (typeof next.defaultBaseFolder === "string") {
-    merged.defaultBaseFolder = setPath(next.defaultBaseFolder) || DEFAULT_SETTINGS.defaultBaseFolder;
+    merged.defaultBaseFolder =
+      setPath(next.defaultBaseFolder) || DEFAULT_SETTINGS.defaultBaseFolder;
   }
   if (typeof next.netflixBaseFolder === "string") {
     merged.netflixBaseFolder = setPath(next.netflixBaseFolder);

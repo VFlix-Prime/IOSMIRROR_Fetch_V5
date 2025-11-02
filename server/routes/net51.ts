@@ -32,7 +32,8 @@ function writeCache(data: any, pathName = CACHE_PATH) {
 async function fetchRemoteTop10() {
   const html = await fetchHomeHtml();
   const items: { id: string; poster: string }[] = [];
-  const regex = /<div[^>]*class=["'][^"']*top10-post[^"']*["'][^>]*data-post=["'](\d+)["'][\s\S]*?<img[^>]*data-src=["']([^"']+)["'][^>]*>/gi;
+  const regex =
+    /<div[^>]*class=["'][^"']*top10-post[^"']*["'][^>]*data-post=["'](\d+)["'][\s\S]*?<img[^>]*data-src=["']([^"']+)["'][^>]*>/gi;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(html))) {
     items.push({ id: m[1], poster: m[2] });
@@ -45,7 +46,8 @@ async function fetchRemoteAllPosters() {
   const items: Array<{ id: string; poster: string }> = [];
 
   // first try anchors with data-post + img inside
-  const regex = /<a[^>]*data-post=["'](\d+)["'][^>]*>[\s\S]*?<img[^>]*data-src=["'](https:\/\/imgcdn\.kim\/poster\/v\/(\d+)\.jpg)["'][^>]*>/gi;
+  const regex =
+    /<a[^>]*data-post=["'](\d+)["'][^>]*>[\s\S]*?<img[^>]*data-src=["'](https:\/\/imgcdn\.kim\/poster\/v\/(\d+)\.jpg)["'][^>]*>/gi;
   let m: RegExpExecArray | null;
   const seen = new Set<string>();
   while ((m = regex.exec(html))) {
@@ -91,14 +93,21 @@ async function fetchHomeHtml() {
   };
   if (cookieHeader) headers.Cookie = cookieHeader;
 
-  const response = await fetch("https://net51.cc/mobile/home?app=1", { method: "GET", headers });
+  const response = await fetch("https://net51.cc/mobile/home?app=1", {
+    method: "GET",
+    headers,
+  });
   if (!response.ok) throw new Error("Failed to fetch remote");
   return await response.text();
 }
 
 export const handleGetCachedTop10: RequestHandler = (_req, res) => {
   const cache = readCache();
-  res.json({ success: true, items: cache.items || [], lastUpdated: cache.lastUpdated || 0 });
+  res.json({
+    success: true,
+    items: cache.items || [],
+    lastUpdated: cache.lastUpdated || 0,
+  });
 };
 
 export const handleRefreshTop10: RequestHandler = async (_req, res) => {
@@ -107,7 +116,11 @@ export const handleRefreshTop10: RequestHandler = async (_req, res) => {
     const cache = readCache();
     const existingIds = new Set((cache.items || []).map((i: any) => i.id));
 
-    const merged = remote.map((it) => ({ id: it.id, poster: it.poster, seen: existingIds.has(it.id) }));
+    const merged = remote.map((it) => ({
+      id: it.id,
+      poster: it.poster,
+      seen: existingIds.has(it.id),
+    }));
 
     const now = Date.now();
     const out = { items: merged, lastUpdated: now };
@@ -124,10 +137,16 @@ export const handleRefreshTop10: RequestHandler = async (_req, res) => {
 export const handleMarkTop10: RequestHandler = (req, res) => {
   try {
     const ids: string[] = (req.body && req.body.ids) || [];
-    if (!Array.isArray(ids)) return res.status(400).json({ success: false, error: "ids array required" });
+    if (!Array.isArray(ids))
+      return res
+        .status(400)
+        .json({ success: false, error: "ids array required" });
 
     const cache = readCache();
-    const items = (cache.items || []).map((it: any) => ({ ...it, seen: ids.includes(it.id) ? true : it.seen }));
+    const items = (cache.items || []).map((it: any) => ({
+      ...it,
+      seen: ids.includes(it.id) ? true : it.seen,
+    }));
     const out = { items, lastUpdated: Date.now() };
     writeCache(out);
     res.json({ success: true, items });
@@ -140,7 +159,11 @@ export const handleMarkTop10: RequestHandler = (req, res) => {
 // --- All posters handlers ---
 export const handleGetAllPosters: RequestHandler = (_req, res) => {
   const cache = readCache(ALL_CACHE_PATH);
-  res.json({ success: true, items: cache.items || [], lastUpdated: cache.lastUpdated || 0 });
+  res.json({
+    success: true,
+    items: cache.items || [],
+    lastUpdated: cache.lastUpdated || 0,
+  });
 };
 
 export const handleRefreshAllPosters: RequestHandler = async (_req, res) => {
@@ -149,7 +172,11 @@ export const handleRefreshAllPosters: RequestHandler = async (_req, res) => {
     const cache = readCache(ALL_CACHE_PATH);
     const existingIds = new Set((cache.items || []).map((i: any) => i.id));
 
-    const merged = remote.map((it) => ({ id: it.id, poster: it.poster, seen: existingIds.has(it.id) }));
+    const merged = remote.map((it) => ({
+      id: it.id,
+      poster: it.poster,
+      seen: existingIds.has(it.id),
+    }));
 
     const now = Date.now();
     const out = { items: merged, lastUpdated: now };
@@ -159,22 +186,32 @@ export const handleRefreshAllPosters: RequestHandler = async (_req, res) => {
     res.json({ success: true, items: merged, lastUpdated: now, newCount });
   } catch (err) {
     console.error("refresh all posters error", err);
-    res.status(500).json({ success: false, error: "Failed to refresh all posters" });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to refresh all posters" });
   }
 };
 
 export const handleMarkAllPosters: RequestHandler = (req, res) => {
   try {
     const ids: string[] = (req.body && req.body.ids) || [];
-    if (!Array.isArray(ids)) return res.status(400).json({ success: false, error: "ids array required" });
+    if (!Array.isArray(ids))
+      return res
+        .status(400)
+        .json({ success: false, error: "ids array required" });
 
     const cache = readCache(ALL_CACHE_PATH);
-    const items = (cache.items || []).map((it: any) => ({ ...it, seen: ids.includes(it.id) ? true : it.seen }));
+    const items = (cache.items || []).map((it: any) => ({
+      ...it,
+      seen: ids.includes(it.id) ? true : it.seen,
+    }));
     const out = { items, lastUpdated: Date.now() };
     writeCache(out, ALL_CACHE_PATH);
     res.json({ success: true, items });
   } catch (err) {
     console.error("mark all posters error", err);
-    res.status(500).json({ success: false, error: "Failed to mark all posters" });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to mark all posters" });
   }
 };

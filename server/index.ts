@@ -3,7 +3,12 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleNetflix } from "./routes/netflix";
-import { handleAmazonPrime, handleGetAmazonPrimePosters, handleRefreshAmazonPrimePosters, handleMarkAmazonPrimePosters } from "./routes/amazon-prime";
+import {
+  handleAmazonPrime,
+  handleGetAmazonPrimePosters,
+  handleRefreshAmazonPrimePosters,
+  handleMarkAmazonPrimePosters,
+} from "./routes/amazon-prime";
 import { handleJioHotstar } from "./routes/jio-hotstar";
 import {
   handleFetchCookie,
@@ -19,7 +24,14 @@ import {
   handleGenerateMovie,
 } from "./routes/streaming";
 import { handleGetSettings, handleUpdateSettings } from "./routes/settings";
-import { handleGetCachedTop10, handleRefreshTop10, handleMarkTop10, handleGetAllPosters, handleRefreshAllPosters, handleMarkAllPosters } from "./routes/net51";
+import {
+  handleGetCachedTop10,
+  handleRefreshTop10,
+  handleMarkTop10,
+  handleGetAllPosters,
+  handleRefreshAllPosters,
+  handleMarkAllPosters,
+} from "./routes/net51";
 
 export function createServer() {
   const app = express();
@@ -71,7 +83,10 @@ export function createServer() {
 
   // Amazon Prime posters (cached)
   app.get("/api/amazon-prime/posters", handleGetAmazonPrimePosters);
-  app.post("/api/amazon-prime/posters/refresh", handleRefreshAmazonPrimePosters);
+  app.post(
+    "/api/amazon-prime/posters/refresh",
+    handleRefreshAmazonPrimePosters,
+  );
   app.post("/api/amazon-prime/posters/mark", handleMarkAmazonPrimePosters);
 
   return app;

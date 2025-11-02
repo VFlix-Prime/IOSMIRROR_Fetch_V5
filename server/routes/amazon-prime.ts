@@ -46,10 +46,18 @@ function writeCache(data: any, pathName = CACHE_PATH) {
 
 export const handleGetAmazonPrimePosters: RequestHandler = (_req, res) => {
   const cache = readCache();
-  res.json({ success: true, slider: cache.slider || [], items: cache.items || [], lastUpdated: cache.lastUpdated || 0 });
+  res.json({
+    success: true,
+    slider: cache.slider || [],
+    items: cache.items || [],
+    lastUpdated: cache.lastUpdated || 0,
+  });
 };
 
-export const handleRefreshAmazonPrimePosters: RequestHandler = async (_req, res) => {
+export const handleRefreshAmazonPrimePosters: RequestHandler = async (
+  _req,
+  res,
+) => {
   try {
     // fetch homepage JSON
     let cookieHeader: string | null = null;
@@ -68,7 +76,10 @@ export const handleRefreshAmazonPrimePosters: RequestHandler = async (_req, res)
     };
     if (cookieHeader) headers.Cookie = cookieHeader;
 
-    const response = await fetch("https://net51.cc/tv/pv/homepage.php", { method: "GET", headers });
+    const response = await fetch("https://net51.cc/tv/pv/homepage.php", {
+      method: "GET",
+      headers,
+    });
     if (!response.ok) throw new Error("Failed to fetch amazon prime homepage");
     const text = await response.text();
     let json: any = {};
@@ -76,11 +87,19 @@ export const handleRefreshAmazonPrimePosters: RequestHandler = async (_req, res)
       json = JSON.parse(text);
     } catch (e) {
       console.error("amazon homepage parse error", e, text.substring(0, 500));
-      return res.status(500).json({ success: false, error: "Invalid JSON from homepage" });
+      return res
+        .status(500)
+        .json({ success: false, error: "Invalid JSON from homepage" });
     }
 
     const slider: any[] = Array.isArray(json.slider)
-      ? json.slider.map((s: any) => ({ id: s.id || null, poster: s.img || null, desc: s.desc || "", ua: s.ua || "", namelogo: s.namelogo || null }))
+      ? json.slider.map((s: any) => ({
+          id: s.id || null,
+          poster: s.img || null,
+          desc: s.desc || "",
+          ua: s.ua || "",
+          namelogo: s.namelogo || null,
+        }))
       : [];
 
     // flatten post ids into individual poster entries
@@ -90,7 +109,10 @@ export const handleRefreshAmazonPrimePosters: RequestHandler = async (_req, res)
       for (const group of json.post) {
         if (!group || !group.ids) continue;
         const cate = group.cate || "";
-        const ids = String(group.ids).split(",").map((i: string) => i.trim()).filter(Boolean);
+        const ids = String(group.ids)
+          .split(",")
+          .map((i: string) => i.trim())
+          .filter(Boolean);
         for (const id of ids) {
           if (seen.has(id)) continue;
           seen.add(id);
@@ -104,33 +126,57 @@ export const handleRefreshAmazonPrimePosters: RequestHandler = async (_req, res)
     const cache = readCache();
     const existingIds = new Set((cache.items || []).map((i: any) => i.id));
 
-    const merged = items.map((it) => ({ id: it.id, poster: it.poster, cate: it.cate, seen: existingIds.has(it.id) }));
+    const merged = items.map((it) => ({
+      id: it.id,
+      poster: it.poster,
+      cate: it.cate,
+      seen: existingIds.has(it.id),
+    }));
 
     const now = Date.now();
     const out = { slider, items: merged, lastUpdated: now };
     writeCache(out);
 
     const newCount = merged.filter((i: any) => !i.seen).length;
-    res.json({ success: true, slider, items: merged, lastUpdated: now, newCount });
+    res.json({
+      success: true,
+      slider,
+      items: merged,
+      lastUpdated: now,
+      newCount,
+    });
   } catch (err) {
     console.error("refresh amazon prime posters error", err);
-    res.status(500).json({ success: false, error: "Failed to refresh amazon prime posters" });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Failed to refresh amazon prime posters",
+      });
   }
 };
 
 export const handleMarkAmazonPrimePosters: RequestHandler = (req, res) => {
   try {
     const ids: string[] = (req.body && req.body.ids) || [];
-    if (!Array.isArray(ids)) return res.status(400).json({ success: false, error: "ids array required" });
+    if (!Array.isArray(ids))
+      return res
+        .status(400)
+        .json({ success: false, error: "ids array required" });
 
     const cache = readCache();
-    const items = (cache.items || []).map((it: any) => ({ ...it, seen: ids.includes(it.id) ? true : it.seen }));
+    const items = (cache.items || []).map((it: any) => ({
+      ...it,
+      seen: ids.includes(it.id) ? true : it.seen,
+    }));
     const out = { slider: cache.slider || [], items, lastUpdated: Date.now() };
     writeCache(out);
     res.json({ success: true, items });
   } catch (err) {
     console.error("mark amazon prime posters error", err);
-    res.status(500).json({ success: false, error: "Failed to mark amazon prime posters" });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to mark amazon prime posters" });
   }
 };
 
