@@ -56,6 +56,12 @@ export default function AmazonPrime() {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState("");
 
+  // load settings and cached posters
+  const [slider, setSlider] = useState<Array<any>>([]);
+  const [postersAll, setPostersAll] = useState<Array<{ id: string; poster: string; cate?: string; seen?: boolean }>>([]);
+  const [postersLoading, setPostersLoading] = useState(false);
+  const [postersStatus, setPostersStatus] = useState("");
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -67,6 +73,23 @@ export default function AmazonPrime() {
         }
       } catch (_) {
         // ignore
+      }
+
+      // load cached posters
+      setPostersLoading(true);
+      try {
+        const r = await fetch("/api/amazon-prime/posters");
+        const j = await r.json();
+        if (j && Array.isArray(j.items)) {
+          setPostersAll(j.items || []);
+        }
+        if (j && Array.isArray(j.slider)) {
+          setSlider(j.slider || []);
+        }
+      } catch (_) {
+        // ignore
+      } finally {
+        setPostersLoading(false);
       }
     };
     load();
