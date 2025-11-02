@@ -29,7 +29,7 @@ const generateFolderPath = (
   seasonNumber: string,
 ): string => {
   const cleanSeriesName = seriesName.trim();
-  const base = getSettings().defaultBaseFolder;
+  const base = getBaseFolderForService(service);
   return path.join(
     base,
     `${service}/Series/${cleanSeriesName}/Season ${seasonNumber}`,
