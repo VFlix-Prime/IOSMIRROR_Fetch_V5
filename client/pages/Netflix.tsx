@@ -549,6 +549,7 @@ export default function Netflix() {
       }
 
       setHistory([result, ...history]);
+      addMovieHistory(result, "netflix");
       setShowHistory(true);
     } catch (err) {
       setError(
