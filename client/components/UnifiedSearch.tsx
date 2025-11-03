@@ -74,6 +74,14 @@ export default function UnifiedSearch() {
     setFetchingId(`${result.provider}-${result.id}`);
 
     try {
+      // Send telegram notification
+      await sendTelegramNotification({
+        name: result.title,
+        provider: result.provider,
+        image: result.poster,
+        message: `${result.title} - Opening on ${result.provider === "netflix" ? "Netflix" : "Prime"}`,
+      });
+
       if (result.provider === "netflix") {
         navigate(`/netflix?id=${encodeURIComponent(result.id)}`);
       } else {
