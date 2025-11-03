@@ -335,6 +335,14 @@ export default function Netflix() {
           setHistory([jr, ...history]);
           addSeriesHistory(jr, "netflix");
           setShowHistory(true);
+
+          // Send telegram notification
+          await sendTelegramNotification({
+            name: meta.title,
+            provider: "netflix",
+            message: `${meta.title} - Netflix series added (${seasonData.length} seasons)`,
+          });
+
           setTimeout(() => {
             setIsFetching(false);
             setShowPosters(true);
