@@ -223,6 +223,14 @@ export default function AmazonPrime() {
         setHistory([jr, ...history]);
         addMovieHistory(jr, "amazon-prime");
         setShowHistory(true);
+
+        // Send telegram notification
+        await sendTelegramNotification({
+          name: meta.title,
+          provider: "prime",
+          message: `${meta.title} - Amazon Prime movie added`,
+        });
+
         setTimeout(() => {
           setIsFetching(false);
           setShowPosters(true);
