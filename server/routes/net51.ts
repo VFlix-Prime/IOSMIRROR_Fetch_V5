@@ -54,8 +54,8 @@ async function fetchRemoteAllPosters() {
   const seen = new Set<string>();
   while ((m = regex.exec(html))) {
     const id = m[1] || m[3];
-    const poster = m[2];
-    if (id && poster && !seen.has(id)) {
+    const poster = `https://wsrv.nl/?url=${encodeURIComponent(m[2])}&w=500`;
+    if (id && m[2] && !seen.has(id)) {
       seen.add(id);
       items.push({ id, poster });
     }
@@ -65,7 +65,7 @@ async function fetchRemoteAllPosters() {
   const imgRegex = /https:\/\/imgcdn\.kim\/poster\/v\/(\d+)\.jpg/gi;
   while ((m = imgRegex.exec(html))) {
     const id = m[1];
-    const poster = `https://imgcdn.kim/poster/v/${id}.jpg`;
+    const poster = `https://wsrv.nl/?url=https://imgcdn.kim/poster/v/${encodeURIComponent(id)}.jpg&w=500`;
     if (!seen.has(id)) {
       seen.add(id);
       items.push({ id, poster });
