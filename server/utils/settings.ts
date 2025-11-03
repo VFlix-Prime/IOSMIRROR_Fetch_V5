@@ -65,6 +65,14 @@ export function getSettings(): AppSettings {
         };
         return base;
       }
+    } else {
+      // Settings file doesn't exist, create it with defaults
+      ensureDataDir();
+      fs.writeFileSync(
+        SETTINGS_PATH,
+        JSON.stringify(DEFAULT_SETTINGS, null, 2),
+        "utf-8"
+      );
     }
   } catch (e) {
     // ignore and fall back to default
