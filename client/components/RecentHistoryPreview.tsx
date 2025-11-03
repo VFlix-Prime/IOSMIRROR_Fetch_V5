@@ -26,7 +26,10 @@ export default function RecentHistoryPreview() {
   return (
     <div className="space-y-3">
       {items.map((it) => (
-        <div key={it.id} className="flex items-center justify-between bg-slate-900/20 rounded p-3">
+        <div
+          key={it.id}
+          className="flex items-center justify-between bg-slate-900/20 rounded p-3"
+        >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-slate-800/50 rounded flex items-center justify-center">
               {it.type === "movie" ? (
@@ -58,7 +61,10 @@ export default function RecentHistoryPreview() {
                 <Link2 className="w-4 h-4" /> Open
               </a>
             )}
-            <Link to="/history" className="text-sm text-slate-300 hover:text-white underline">
+            <Link
+              to="/history"
+              className="text-sm text-slate-300 hover:text-white underline"
+            >
               Details
             </Link>
           </div>

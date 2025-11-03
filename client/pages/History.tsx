@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Trash2, FolderOpen, Film, Tv, Link2, Trash } from "lucide-react";
+import {
+  ArrowLeft,
+  Trash2,
+  FolderOpen,
+  Film,
+  Tv,
+  Link2,
+  Trash,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -44,8 +52,12 @@ export default function History() {
     setHistory([]);
   };
 
-  const movies = history.filter((h): h is MovieHistoryItem => h.type === "movie");
-  const series = history.filter((h): h is SeriesHistoryItem => h.type === "series");
+  const movies = history.filter(
+    (h): h is MovieHistoryItem => h.type === "movie",
+  );
+  const series = history.filter(
+    (h): h is SeriesHistoryItem => h.type === "series",
+  );
   const hasAny = history.length > 0;
 
   return (
@@ -60,11 +72,17 @@ export default function History() {
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 hover:text-white"
+                >
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
               </Link>
-              <h1 className="text-3xl font-bold text-white">Streaming History</h1>
+              <h1 className="text-3xl font-bold text-white">
+                Streaming History
+              </h1>
             </div>
             {hasAny && (
               <Button
@@ -89,16 +107,26 @@ export default function History() {
             {!hasAny ? (
               <div className="bg-slate-800/50 rounded-2xl p-12 border border-slate-700 text-center">
                 <FolderOpen className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-                <h2 className="text-xl font-semibold text-slate-300 mb-2">No History Yet</h2>
+                <h2 className="text-xl font-semibold text-slate-300 mb-2">
+                  No History Yet
+                </h2>
                 <p className="text-slate-400">
-                  When you generate movies or series from Netflix, Amazon Prime, or JioHotstar, they will appear here.
+                  When you generate movies or series from Netflix, Amazon Prime,
+                  or JioHotstar, they will appear here.
                 </p>
               </div>
             ) : (
-              <Tabs defaultValue={movies.length ? "movies" : "series"} className="w-full">
+              <Tabs
+                defaultValue={movies.length ? "movies" : "series"}
+                className="w-full"
+              >
                 <TabsList className="mb-6">
-                  <TabsTrigger value="movies">Movies ({movies.length})</TabsTrigger>
-                  <TabsTrigger value="series">Series ({series.length})</TabsTrigger>
+                  <TabsTrigger value="movies">
+                    Movies ({movies.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="series">
+                    Series ({series.length})
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="movies">
@@ -119,10 +147,12 @@ export default function History() {
                               </span>
                             </div>
                             <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                              <Film className="w-4 h-4 text-slate-400" /> {m.name}
+                              <Film className="w-4 h-4 text-slate-400" />{" "}
+                              {m.name}
                             </h3>
                             <p className="text-sm text-slate-400">
-                              Saved {new Date(m.savedAt).toLocaleString()} • File: {m.fileName}
+                              Saved {new Date(m.savedAt).toLocaleString()} •
+                              File: {m.fileName}
                             </p>
                           </div>
                           <Button
@@ -137,7 +167,9 @@ export default function History() {
                           </Button>
                         </div>
                         <div className="p-4 space-y-2">
-                          <div className="text-xs text-slate-400 font-mono break-all">📁 {m.folderPath}</div>
+                          <div className="text-xs text-slate-400 font-mono break-all">
+                            📁 {m.folderPath}
+                          </div>
                           <a
                             href={m.link}
                             target="_blank"
@@ -173,7 +205,8 @@ export default function History() {
                               <Tv className="w-4 h-4 text-slate-400" /> {s.name}
                             </h3>
                             <p className="text-sm text-slate-400">
-                              Saved {new Date(s.savedAt).toLocaleString()} • Files: {s.totalFilesCreated}
+                              Saved {new Date(s.savedAt).toLocaleString()} •
+                              Files: {s.totalFilesCreated}
                             </p>
                           </div>
                           <Button
@@ -189,12 +222,21 @@ export default function History() {
                         </div>
                         <div className="p-4 space-y-4">
                           {s.seasons.map((season, idx) => (
-                            <div key={idx} className="bg-slate-900/50 rounded p-3 border border-slate-700">
+                            <div
+                              key={idx}
+                              className="bg-slate-900/50 rounded p-3 border border-slate-700"
+                            >
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-slate-300 font-semibold">Season {season.seasonNumber}</div>
-                                <div className="text-xs text-slate-500">{season.files.length} episodes</div>
+                                <div className="text-slate-300 font-semibold">
+                                  Season {season.seasonNumber}
+                                </div>
+                                <div className="text-xs text-slate-500">
+                                  {season.files.length} episodes
+                                </div>
                               </div>
-                              <div className="text-xs text-slate-400 font-mono break-all mb-2">📁 {season.folderPath}</div>
+                              <div className="text-xs text-slate-400 font-mono break-all mb-2">
+                                📁 {season.folderPath}
+                              </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                 {season.files.map((file, fi) => (
                                   <a
@@ -205,8 +247,12 @@ export default function History() {
                                     className="bg-slate-800/50 rounded p-2 text-center hover:bg-slate-800 transition-colors"
                                     title={file.streamUrl}
                                   >
-                                    <div className="text-xs font-bold text-white">{file.fileName}</div>
-                                    <div className="text-[10px] text-slate-500">Open link</div>
+                                    <div className="text-xs font-bold text-white">
+                                      {file.fileName}
+                                    </div>
+                                    <div className="text-[10px] text-slate-500">
+                                      Open link
+                                    </div>
                                   </a>
                                 ))}
                               </div>

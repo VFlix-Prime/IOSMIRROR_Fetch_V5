@@ -180,11 +180,18 @@ export default function Index() {
                     <Play className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm text-slate-300 font-semibold">Recent History</div>
-                    <div className="text-xs text-slate-400">Shows recent movies & series you generated</div>
+                    <div className="text-sm text-slate-300 font-semibold">
+                      Recent History
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      Shows recent movies & series you generated
+                    </div>
                   </div>
                 </div>
-                <Link to="/history" className="text-sm text-slate-300 hover:text-white underline">
+                <Link
+                  to="/history"
+                  className="text-sm text-slate-300 hover:text-white underline"
+                >
                   View Full History
                 </Link>
               </div>
