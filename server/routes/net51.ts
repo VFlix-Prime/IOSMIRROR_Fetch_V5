@@ -24,6 +24,16 @@ function readCache(pathName = CACHE_PATH) {
   return { items: [], lastUpdated: 0 };
 }
 
+function wrapPosterUrl(url: string | undefined): string | undefined {
+  if (!url || typeof url !== "string") return undefined;
+  if (url.includes("wsrv.nl/")) return url;
+  // If it's an imgcdn.kim url, wrap it
+  if (url.includes("imgcdn.kim/poster/")) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=500`;
+  }
+  return url;
+}
+
 function writeCache(data: any, pathName = CACHE_PATH) {
   ensureDataDir();
   fs.writeFileSync(pathName, JSON.stringify(data, null, 2), "utf-8");
