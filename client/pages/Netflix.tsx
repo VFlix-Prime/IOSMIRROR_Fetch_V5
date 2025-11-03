@@ -319,6 +319,7 @@ export default function Netflix() {
             throw new Error(jr.error || "Failed to generate .strm files");
           setFetchProgress(`✓ Successfully generated: ${meta.title}`);
           setHistory([jr, ...history]);
+          addSeriesHistory(jr, "netflix");
           setShowHistory(true);
           setTimeout(() => {
             setIsFetching(false);
