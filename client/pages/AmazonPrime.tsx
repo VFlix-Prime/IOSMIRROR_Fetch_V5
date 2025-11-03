@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addMovieHistory, addSeriesHistory } from "@/lib/history";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
+import { sendTelegramNotification } from "@/lib/telegram-notify";
 
 interface Season {
   id: string;
