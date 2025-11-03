@@ -5,12 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface SettingsResponse {
   success: boolean;
-  settings: { defaultBaseFolder: string };
+  settings: {
+    defaultBaseFolder: string;
+    telegramToken?: string;
+    telegramChannelId?: string;
+  };
   error?: string;
 }
 
 export default function Settings() {
   const [defaultBaseFolder, setDefaultBaseFolder] = useState("");
+  const [telegramToken, setTelegramToken] = useState("");
+  const [telegramChannelId, setTelegramChannelId] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -21,6 +27,8 @@ export default function Settings() {
         const data: SettingsResponse = await res.json();
         if (data.success) {
           setDefaultBaseFolder(data.settings.defaultBaseFolder || "");
+          setTelegramToken(data.settings.telegramToken || "");
+          setTelegramChannelId(data.settings.telegramChannelId || "");
         }
       } catch {
         // ignore
