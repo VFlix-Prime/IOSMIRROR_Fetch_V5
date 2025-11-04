@@ -132,8 +132,9 @@ export default function JioHotstar() {
     setData(null);
 
     try {
-      const proxyUrl = buildProxyUrl("jio", id);
-      const response = await fetch(proxyUrl);
+      const response = await fetch(
+        `/api/jio-hotstar?id=${encodeURIComponent(id)}`,
+      );
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Failed to fetch data");
       setData(json);
