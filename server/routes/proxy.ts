@@ -41,19 +41,14 @@ export const handleProxy: RequestHandler = async (req, res) => {
     // Construct the referer header value
     const referer = req.query.referer || DEFAULT_REFERER;
 
-    // Build the full proxy URL
-    const encodedUrl = encodeURIComponent(
-      `${targetUrl}?${primeToken}&referer=${encodeURIComponent(String(referer))}`,
-    );
-    const proxyUrl = `${PROXY_BASE_URL}?url=${encodedUrl}`;
+    // Build the full proxy URL with the format:
+    // https://iosmirror.vflix.life/api/stream-proxy?url=https://net51.cc/hls/70270776.m3u8?in=...&referer=...
+    const targetUrlWithToken = `${targetUrl}?${primeToken}`;
+    const encodedReferer = encodeURIComponent(String(referer));
+    const proxyUrl = `${PROXY_BASE_URL}?url=${targetUrlWithToken}&referer=${encodedReferer}`;
 
-    res.json({
-      success: true,
-      proxyUrl,
-      targetUrl,
-      primeToken,
-      referer,
-    });
+    // Redirect to the final proxy URL
+    res.redirect(proxyUrl);
   } catch (error) {
     console.error("Proxy error:", error);
     res.status(500).json({
