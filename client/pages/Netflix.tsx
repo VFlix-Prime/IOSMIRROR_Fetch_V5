@@ -233,9 +233,8 @@ export default function Netflix() {
     setFetchProgress("Fetching metadata...");
     setError("");
     try {
-      const resp = await fetch(
-        `/api/netflix?id=${encodeURIComponent(serviceId)}`,
-      );
+      const proxyUrl = buildProxyUrl("netflix", serviceId);
+      const resp = await fetch(proxyUrl);
       const meta = await resp.json();
       if (!resp.ok) throw new Error(meta.error || "Failed to fetch metadata");
 
