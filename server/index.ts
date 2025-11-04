@@ -56,6 +56,9 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Proxy route
+  app.get("/api/proxy", handleProxy);
+
   // Search routes
   app.get("/api/search", handleUnifiedSearch);
   app.get("/api/search/netflix", handleNetflixSearch);
